@@ -11,6 +11,23 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Zoda - Your Crypto Fortune Teller",
   description: "Discover your crypto fortune based on your Chinese zodiac sign",
+  other: {
+    'fc:frame': JSON.stringify({
+      version: "next",
+      imageUrl: "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
+      aspectRatio: "3:2",
+      button: {
+        title: "Zoda",
+        action: {
+          type: "launch_frame",
+          name: "Zoda",
+          url: "https://codalabs.ngrok.io",
+          splashImageUrl: "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
+          splashBackgroundColor: "#47218f"
+        }
+      }
+    })
+  }
 }
 
 export default function RootLayout({

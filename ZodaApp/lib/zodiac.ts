@@ -100,12 +100,25 @@ export const zodiac = {
       // Calculate the sign based on the 12-year cycle
       const remainder = year % 12
       const index = [8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7][remainder]
-      return signs[index]
+      const calculatedSign = { ...signs[index] }
+      // Ensure years is an array
+      calculatedSign.years = Array.isArray(calculatedSign.years) 
+        ? calculatedSign.years 
+        : Array.from(calculatedSign.years || [])
+      return calculatedSign
     }
-    return sign
+    // Ensure years is an array
+    const signCopy = { ...sign }
+    signCopy.years = Array.isArray(signCopy.years) 
+      ? signCopy.years 
+      : Array.from(signCopy.years || [])
+    return signCopy
   },
   getAllSigns: (): ZodiacSign[] => {
-    return signs
+    return signs.map(sign => ({
+      ...sign,
+      years: Array.isArray(sign.years) ? sign.years : Array.from(sign.years || [])
+    }))
   },
 }
 
