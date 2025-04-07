@@ -4,7 +4,7 @@ import { Readable } from 'stream'
 
 const pinata = new pinataSDK(
   process.env.PINATA_API_KEY as string,
-  process.env.PINATA_API_SECRET as string
+  process.env.PINATA_SECRET_KEY as string
 )
 
 interface UploadToPinataResponse {
