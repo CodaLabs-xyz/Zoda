@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, sign, year } = await req.json()
+    const { username, sign, birthYear } = await req.json()
 
     // Get OpenRouter API key from environment variables
     const apiKey = process.env.OPENROUTER_API_KEY
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create a prompt for the fortune generation
-    const prompt = `Generate a positive, optimistic crypto fortune for a person born in the Year of the ${sign} (${year}). 
+    const prompt = `Generate a positive, optimistic crypto fortune for a person born in the Year of the ${sign} (${birthYear}). 
     The fortune should be personalized for ${username}, be 2-3 sentences long, and include:
     1. A reference to their zodiac sign's traits (${sign})
     2. A positive prediction about their crypto projects' development, innovations, or community building
