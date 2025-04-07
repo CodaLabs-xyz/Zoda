@@ -8094,109 +8094,109 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-darwin-arm64@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-darwin-arm64@npm:1.4.0"
+"@unrs/resolver-binding-darwin-arm64@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-darwin-arm64@npm:1.4.1"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-darwin-x64@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-darwin-x64@npm:1.4.0"
+"@unrs/resolver-binding-darwin-x64@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-darwin-x64@npm:1.4.1"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-freebsd-x64@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-freebsd-x64@npm:1.4.0"
+"@unrs/resolver-binding-freebsd-x64@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-freebsd-x64@npm:1.4.1"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-arm-gnueabihf@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-arm-gnueabihf@npm:1.4.0"
+"@unrs/resolver-binding-linux-arm-gnueabihf@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-arm-gnueabihf@npm:1.4.1"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-arm-musleabihf@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-arm-musleabihf@npm:1.4.0"
+"@unrs/resolver-binding-linux-arm-musleabihf@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-arm-musleabihf@npm:1.4.1"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-arm64-gnu@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-arm64-gnu@npm:1.4.0"
+"@unrs/resolver-binding-linux-arm64-gnu@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-arm64-gnu@npm:1.4.1"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-arm64-musl@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-arm64-musl@npm:1.4.0"
+"@unrs/resolver-binding-linux-arm64-musl@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-arm64-musl@npm:1.4.1"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-ppc64-gnu@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-ppc64-gnu@npm:1.4.0"
+"@unrs/resolver-binding-linux-ppc64-gnu@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-ppc64-gnu@npm:1.4.1"
   conditions: os=linux & cpu=ppc64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-s390x-gnu@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-s390x-gnu@npm:1.4.0"
+"@unrs/resolver-binding-linux-s390x-gnu@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-s390x-gnu@npm:1.4.1"
   conditions: os=linux & cpu=s390x & libc=glibc
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-x64-gnu@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-x64-gnu@npm:1.4.0"
+"@unrs/resolver-binding-linux-x64-gnu@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-x64-gnu@npm:1.4.1"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-linux-x64-musl@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-linux-x64-musl@npm:1.4.0"
+"@unrs/resolver-binding-linux-x64-musl@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-linux-x64-musl@npm:1.4.1"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-wasm32-wasi@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-wasm32-wasi@npm:1.4.0"
+"@unrs/resolver-binding-wasm32-wasi@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-wasm32-wasi@npm:1.4.1"
   dependencies:
     "@napi-rs/wasm-runtime": ^0.2.8
   conditions: cpu=wasm32
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-win32-arm64-msvc@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-win32-arm64-msvc@npm:1.4.0"
+"@unrs/resolver-binding-win32-arm64-msvc@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-win32-arm64-msvc@npm:1.4.1"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-win32-ia32-msvc@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-win32-ia32-msvc@npm:1.4.0"
+"@unrs/resolver-binding-win32-ia32-msvc@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-win32-ia32-msvc@npm:1.4.1"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@unrs/resolver-binding-win32-x64-msvc@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@unrs/resolver-binding-win32-x64-msvc@npm:1.4.0"
+"@unrs/resolver-binding-win32-x64-msvc@npm:1.4.1":
+  version: 1.4.1
+  resolution: "@unrs/resolver-binding-win32-x64-msvc@npm:1.4.1"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -22451,24 +22451,24 @@ __metadata:
   linkType: hard
 
 "unrs-resolver@npm:^1.3.2":
-  version: 1.4.0
-  resolution: "unrs-resolver@npm:1.4.0"
+  version: 1.4.1
+  resolution: "unrs-resolver@npm:1.4.1"
   dependencies:
-    "@unrs/resolver-binding-darwin-arm64": 1.4.0
-    "@unrs/resolver-binding-darwin-x64": 1.4.0
-    "@unrs/resolver-binding-freebsd-x64": 1.4.0
-    "@unrs/resolver-binding-linux-arm-gnueabihf": 1.4.0
-    "@unrs/resolver-binding-linux-arm-musleabihf": 1.4.0
-    "@unrs/resolver-binding-linux-arm64-gnu": 1.4.0
-    "@unrs/resolver-binding-linux-arm64-musl": 1.4.0
-    "@unrs/resolver-binding-linux-ppc64-gnu": 1.4.0
-    "@unrs/resolver-binding-linux-s390x-gnu": 1.4.0
-    "@unrs/resolver-binding-linux-x64-gnu": 1.4.0
-    "@unrs/resolver-binding-linux-x64-musl": 1.4.0
-    "@unrs/resolver-binding-wasm32-wasi": 1.4.0
-    "@unrs/resolver-binding-win32-arm64-msvc": 1.4.0
-    "@unrs/resolver-binding-win32-ia32-msvc": 1.4.0
-    "@unrs/resolver-binding-win32-x64-msvc": 1.4.0
+    "@unrs/resolver-binding-darwin-arm64": 1.4.1
+    "@unrs/resolver-binding-darwin-x64": 1.4.1
+    "@unrs/resolver-binding-freebsd-x64": 1.4.1
+    "@unrs/resolver-binding-linux-arm-gnueabihf": 1.4.1
+    "@unrs/resolver-binding-linux-arm-musleabihf": 1.4.1
+    "@unrs/resolver-binding-linux-arm64-gnu": 1.4.1
+    "@unrs/resolver-binding-linux-arm64-musl": 1.4.1
+    "@unrs/resolver-binding-linux-ppc64-gnu": 1.4.1
+    "@unrs/resolver-binding-linux-s390x-gnu": 1.4.1
+    "@unrs/resolver-binding-linux-x64-gnu": 1.4.1
+    "@unrs/resolver-binding-linux-x64-musl": 1.4.1
+    "@unrs/resolver-binding-wasm32-wasi": 1.4.1
+    "@unrs/resolver-binding-win32-arm64-msvc": 1.4.1
+    "@unrs/resolver-binding-win32-ia32-msvc": 1.4.1
+    "@unrs/resolver-binding-win32-x64-msvc": 1.4.1
   dependenciesMeta:
     "@unrs/resolver-binding-darwin-arm64":
       optional: true
@@ -22500,7 +22500,7 @@ __metadata:
       optional: true
     "@unrs/resolver-binding-win32-x64-msvc":
       optional: true
-  checksum: c06fd036179620108bc0fbfa9b546fd7fad63bd03f419b75e61617e0d8c8802451914d1ee3979afd8cad05b4c0e45aa853866e87b74a48f63fe8ee777dd21e31
+  checksum: a8069fceb656375022fb80fa6cccae1c759cd88f1da9507cbc72b86fbb1cff7423ede3d751d7692d3a190b5d1cf34a80133fcf602c7a290deaaa0a27d4d03a3b
   languageName: node
   linkType: hard
 
