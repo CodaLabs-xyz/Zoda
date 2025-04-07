@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAccount, useConnect } from 'wagmi'
+import { useAccount, useConnect, useChainId, useSwitchChain } from 'wagmi'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,16 +16,21 @@ import Image from "next/image"
 import { sdk } from "@farcaster/frame-sdk"
 import { useNFTMint, createNFTMetadata } from "@/services/nft"
 
+// Get chain configuration from environment variables
+const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
+const NETWORK_NAME = TARGET_CHAIN_ID === 8453 ? "Base" : "Base Sepolia"
+
 interface MintButtonProps {
   username: string
   year: string
   sign: string
   fortune: string
   imageUrl?: string
+  ipfsHash?: string
   className?: string
 }
 
-export function MintButton({ username, year, sign, fortune, imageUrl, className }: MintButtonProps) {
+export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, className }: MintButtonProps) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState("")
   const [isFarcasterReady, setIsFarcasterReady] = useState(false)
@@ -33,7 +38,9 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
 
   const { isConnected } = useAccount()
   const { connect, connectors } = useConnect()
-  const { handleMint, isMinting, isSuccess, error: mintError } = useNFTMint()
+  const chainId = useChainId()
+  const { switchChain } = useSwitchChain()
+  const { handleMint, isMinting, isSuccess, error: mintError, mintPrice } = useNFTMint()
 
   useEffect(() => {
     setMounted(true)
@@ -51,6 +58,13 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
     initFarcaster()
   }, [])
 
+  // Close dialog when minting is successful
+  useEffect(() => {
+    if (isSuccess) {
+      setOpen(false)
+    }
+  }, [isSuccess])
+
   const onMint = async () => {
     try {
       setError("")
@@ -60,9 +74,19 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
         setError("Please open this app in Farcaster to mint")
         return
       }
-      if (!imageUrl) {
+      if (!imageUrl || !ipfsHash) {
         setError("Image not ready yet")
         return
+      }
+
+      // Check if on correct network
+      if (chainId !== TARGET_CHAIN_ID) {
+        if (switchChain) {
+          await switchChain({ chainId: TARGET_CHAIN_ID })
+        } else {
+          setError(`Please switch to ${NETWORK_NAME} network`)
+          return
+        }
       }
 
       const metadata = createNFTMetadata({
@@ -70,13 +94,13 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
         sign,
         year,
         fortune,
-        imageUrl,
+        imageUrl: `ipfs://${ipfsHash}`,
       })
 
       await handleMint(metadata)
     } catch (err) {
       console.error(err)
-      setError("Something went wrong. Please try again.")
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
     }
   }
 
@@ -88,18 +112,18 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
       <Button 
         onClick={() => setOpen(true)} 
         className={`bg-violet-600 hover:bg-violet-700 ${className}`}
-        disabled={!isFarcasterReady}
+        disabled={!isFarcasterReady || isSuccess}
       >
         <Sparkles className="mr-2 h-4 w-4" />
-        {isFarcasterReady ? "Mint as NFT" : "Open in Farcaster"}
+        {isSuccess ? "NFT Minted!" : isFarcasterReady ? "Mint as NFT" : "Open in Farcaster"}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-violet-950 border-violet-300/20 text-white max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-violet-950 border-violet-300/20 text-white max-h-[90vh] overflow-y-auto" title="Mint Your Fortune as NFT">
           <DialogHeader className="z-10 bg-violet-950 pb-4">
             <DialogTitle>Mint Your Fortune as NFT</DialogTitle>
             <DialogDescription className="text-violet-200">
-              Mint this unique fortune as an NFT on Base for just 0.001 ETH
+              Mint this unique fortune as an NFT on {NETWORK_NAME} for {mintPrice} ETH
             </DialogDescription>
           </DialogHeader>
 
@@ -155,7 +179,7 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
             ) : (
               <Button 
                 onClick={onMint} 
-                disabled={isMinting} 
+                disabled={isMinting || isSuccess} 
                 className="w-full bg-violet-600 hover:bg-violet-700"
               >
                 {isMinting ? (
@@ -163,10 +187,15 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Minting...
                   </>
+                ) : isSuccess ? (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    NFT Minted!
+                  </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Mint NFT (0.001 ETH)
+                    Mint NFT ({mintPrice} ETH)
                   </>
                 )}
               </Button>

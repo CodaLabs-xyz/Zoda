@@ -7,16 +7,16 @@ interface ShareButtonProps {
   username: string
   sign: string
   fortune: string
-  imageUrl?: string
+  ipfsUrl?: string
   className?: string
 }
 
-export function ShareButton({ username, sign, fortune, imageUrl, className }: ShareButtonProps) {
+export function ShareButton({ username, sign, fortune, ipfsUrl, className }: ShareButtonProps) {
   const handleShare = () => {
     let text = `🔮 My crypto fortune from Zoda: As a ${sign}, ${fortune}`
 
     // Add image if available
-    if (imageUrl) {
+    if (ipfsUrl) {
       text += ` Check out my ${sign} character!`
     }
 
@@ -26,10 +26,8 @@ export function ShareButton({ username, sign, fortune, imageUrl, className }: Sh
     let url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
     
     // If there's an image, add it as an embedded image
-    if (imageUrl) {
-      // Ensure we're using the full URL for the image
-      const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`
-      url += `&embeds[]=${encodeURIComponent(fullImageUrl)}`
+    if (ipfsUrl) {
+      url += `&embeds[]=${encodeURIComponent(ipfsUrl)}`
     }
 
     window.open(url, "_blank")

@@ -8,42 +8,39 @@ import { SdkInitializer } from "@/components/sdk-initializer"
 
 const inter = Inter({ subsets: ["latin"] })
 
+// Define frame metadata as a plain object without any Set objects
+const frameMetadata = {
+  version: "next",
+  imageUrl: "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
+  aspectRatio: "1:1",
+  button: {
+    title: "Get My Fortune",
+    action: "post"
+  }
+}
+
 export const metadata: Metadata = {
   title: "Zoda - Your Crypto Fortune Teller",
   description: "Discover your crypto fortune based on your Chinese zodiac sign",
   other: {
-    'fc:frame': JSON.stringify({
-      version: "next",
-      imageUrl: "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
-      aspectRatio: "3:2",
-      button: {
-        title: "Zoda",
-        action: {
-          type: "launch_frame",
-          name: "Zoda",
-          url: "https://codalabs.ngrok.io",
-          splashImageUrl: "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
-          splashBackgroundColor: "#47218f"
-        }
-      }
-    })
+    'fc:frame': JSON.stringify(frameMetadata)
   }
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          enableSystem
+          enableSystem={false}
           disableTransitionOnChange
-          storageKey="zora-theme"
+          storageKey="zoda-theme"
         >
           <WagmiConfig>
             <SdkInitializer />
