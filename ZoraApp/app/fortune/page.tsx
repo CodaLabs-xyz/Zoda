@@ -16,7 +16,7 @@ import { ArrowLeft, Loader2, Download, RefreshCw, Sparkles } from "lucide-react"
 export default function FortunePage() {
   const searchParams = useSearchParams()
   const username = searchParams.get("username") || ""
-  const year = searchParams.get("year") || ""
+  const birthYear = searchParams.get("birthYear") || ""
   const signName = searchParams.get("sign") || ""
 
   const [fortune, setFortune] = useState("")
@@ -74,7 +74,8 @@ export default function FortunePage() {
       if (!imageResponse.ok) {
         const errorData = await imageResponse.json().catch(() => ({}))
         console.error("Image API error response:", errorData)
-        throw new Error(errorData.error || `API responded with status ${imageResponse.status}`)
+        setImageError(errorData.error || `Failed to generate image`)
+        return
       }
 
       // Try to parse the JSON response
@@ -83,7 +84,8 @@ export default function FortunePage() {
         imageData = await imageResponse.json()
       } catch (parseError) {
         console.error("Error parsing image response:", parseError)
-        throw new Error("Failed to parse image generation response")
+        setImageError("Failed to parse image response")
+        return
       }
 
       if (imageData.imageUrl) {
@@ -101,7 +103,7 @@ export default function FortunePage() {
           setIsUploadingToIpfs(false)
         }
       } else {
-        throw new Error("No image URL returned")
+        setImageError("No image URL returned")
       }
     } catch (err) {
       console.error("Image generation error:", err)
@@ -113,15 +115,16 @@ export default function FortunePage() {
 
   useEffect(() => {
     async function generateFortune() {
-      if (!year || !username || !signName) {
+      if (!birthYear || !username || !signName) {
         setIsLoading(false)
         return
       }
 
       try {
         setIsLoading(true)
-        const birthYear = Number.parseInt(year)
-        const zodiacSign = zodiac.getSign(birthYear)
+        setError("")
+        const year = Number.parseInt(birthYear)
+        const zodiacSign = zodiac.getSign(year)
         setSign(zodiacSign)
 
         // Try to get an AI-generated fortune
@@ -134,7 +137,7 @@ export default function FortunePage() {
             body: JSON.stringify({
               username,
               sign: signName,
-              year,
+              birthYear,
             }),
           })
 
@@ -143,6 +146,7 @@ export default function FortunePage() {
           if (response.ok && data.fortune) {
             setFortune(data.fortune)
           } else {
+            console.error("Fortune API error:", data)
             // Fallback to predefined fortunes if API fails
             const signFortunes = fortunes[zodiacSign.name] || fortunes.default
             const randomIndex = Math.floor(Math.random() * signFortunes.length)
@@ -156,7 +160,7 @@ export default function FortunePage() {
           setFortune(signFortunes[randomIndex])
         }
 
-        // Generate the character image
+        // Generate character image independently of fortune
         await generateCharacterImage()
       } catch (err) {
         console.error(err)
@@ -167,7 +171,7 @@ export default function FortunePage() {
     }
 
     generateFortune()
-  }, [year, username, signName])
+  }, [birthYear, username, signName])
 
   const handleDownloadImage = () => {
     if (imageUrl) {
@@ -192,7 +196,8 @@ export default function FortunePage() {
     )
   }
 
-  if (error || !sign) {
+  // Only show error state if we have no fortune and no sign
+  if ((!fortune && !sign) || error) {
     return (
       <main className="flex min-h-screen flex-col items-center p-4 bg-gradient-to-b from-violet-900 to-indigo-950">
         <Header />
@@ -244,6 +249,10 @@ export default function FortunePage() {
                       alt={`${sign.name} Character`}
                       fill
                       className="object-cover"
+                      onError={(e) => {
+                        console.error("Image failed to load:", imageUrl)
+                        setImageError("Failed to load the generated image")
+                      }}
                     />
                     <div className="absolute top-2 right-2 flex gap-2">
                       <Button
@@ -268,8 +277,19 @@ export default function FortunePage() {
                       )}
                     </div>
                   </div>
-                  {ipfsError && (
-                    <p className="text-red-400 text-sm mt-2">{ipfsError}</p>
+                  {(imageError || ipfsError) && (
+                    <div className="mt-2 p-2 rounded bg-red-500/10 border border-red-500/20">
+                      <p className="text-red-400 text-sm">{imageError || ipfsError}</p>
+                      <Button
+                        onClick={generateCharacterImage}
+                        size="sm"
+                        variant="ghost"
+                        className="mt-2 text-violet-300 hover:text-violet-200"
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Try Again
+                      </Button>
+                    </div>
                   )}
                 </>
               ) : null}
@@ -292,7 +312,7 @@ export default function FortunePage() {
               />
               <MintButton 
                 username={username} 
-                year={year} 
+                year={birthYear} 
                 sign={sign.name} 
                 fortune={fortune} 
                 className="w-full sm:w-auto" 

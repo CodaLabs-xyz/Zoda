@@ -49,7 +49,7 @@ export function ZodiacForm() {
       const sign = zodiac.getSign(year)
       const params = new URLSearchParams({
         username,
-        year: birthYear,
+        birthYear,
         sign: sign.name,
       })
 
