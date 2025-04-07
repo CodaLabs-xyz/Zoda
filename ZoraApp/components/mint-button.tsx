@@ -12,16 +12,18 @@ import {
 } from "@/components/ui/dialog"
 import { Loader2, Sparkles, Wallet } from "lucide-react"
 import { WalletContext } from "@/providers/wagmi-provider"
+import Image from "next/image"
 
 interface MintButtonProps {
   username: string
   year: string
   sign: string
   fortune: string
+  imageUrl?: string
   className?: string
 }
 
-export function MintButton({ username, year, sign, fortune, className }: MintButtonProps) {
+export function MintButton({ username, year, sign, fortune, imageUrl, className }: MintButtonProps) {
   const [open, setOpen] = useState(false)
   const [minting, setMinting] = useState(false)
   const [approved, setApproved] = useState(false)
@@ -72,6 +74,18 @@ export function MintButton({ username, year, sign, fortune, className }: MintBut
             </DialogDescription>
           </DialogHeader>
 
+          {/* Image Preview */}
+          {imageUrl && (
+            <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4">
+              <Image
+                src={imageUrl}
+                alt={`${sign} Character`}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+
           <div className="p-4 rounded-lg bg-white/5 border border-violet-300/20">
             <p className="text-white text-sm mb-2">
               <span className="font-bold">Username:</span> {username}
@@ -102,7 +116,7 @@ export function MintButton({ username, year, sign, fortune, className }: MintBut
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    {!approved ? "Approve USDC" : "Mint for $0.5 USDC"}
+                    {approved ? "Mint NFT" : "Approve USDC"}
                   </>
                 )}
               </Button>

@@ -314,7 +314,8 @@ export default function FortunePage() {
                 username={username} 
                 year={birthYear} 
                 sign={sign.name} 
-                fortune={fortune} 
+                fortune={fortune}
+                imageUrl={imageUrl}
                 className="w-full sm:w-auto" 
               />
             </div>
