@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "latest",
     "@farcaster/frame-sdk": "^0.0.32",
     "@hookform/resolvers": "^3.9.1",
     "@pinata/sdk": "^2.1.0",
