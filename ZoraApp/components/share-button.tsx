@@ -20,7 +20,7 @@ export function ShareButton({ username, sign, fortune, imageUrl, className }: Sh
       text += ` Check out my ${sign} character!`
     }
 
-    text += ` Get yours at zoda.vercel.app`
+    text += ` Get yours at zoda.codalabs.xyz`
 
     // Create the Warpcast URL
     let url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
