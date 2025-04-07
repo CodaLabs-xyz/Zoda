@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { getFrameMetadata } from "@coinbase/onchainkit"
+// import { getFrameMetadata } from "@coinbase/onchainkit"
 import { Button } from "@/components/ui/button"
 import { Sparkles } from "lucide-react"
 
@@ -24,19 +24,19 @@ export function FrameComponent({ username, sign, fortune }: FrameComponentProps)
     return null
   }
 
-  // Generate frame metadata
-  const frameMetadata = getFrameMetadata({
-    buttons: [
-      {
-        label: "Get My Fortune",
-      },
-    ],
-    image: {
-      src: `${window.location.origin}/api/og?username=${encodeURIComponent(username)}&sign=${encodeURIComponent(sign)}&fortune=${encodeURIComponent(fortune)}`,
-      aspectRatio: "1.91:1",
-    },
-    postUrl: `${window.location.origin}/api/frame`,
-  })
+  // // Generate frame metadata
+  // const frameMetadata = getFrameMetadata({
+  //   buttons: [
+  //     {
+  //       label: "Get My Fortune",
+  //     },
+  //   ],
+  //   image: {
+  //     src: `${window.location.origin}/api/og?username=${encodeURIComponent(username)}&sign=${encodeURIComponent(sign)}&fortune=${encodeURIComponent(fortune)}`,
+  //     aspectRatio: "1.91:1",
+  //   },
+  //   postUrl: `${window.location.origin}/api/frame`,
+  // })
 
   return (
     <div className="mt-4">
@@ -44,7 +44,7 @@ export function FrameComponent({ username, sign, fortune }: FrameComponentProps)
         <Sparkles className="mr-2 h-4 w-4" />
         Continue in Frame
       </Button>
-      <div dangerouslySetInnerHTML={{ __html: frameMetadata }} />
+      {/* <div dangerouslySetInnerHTML={{ __html: frameMetadata }} /> */}
     </div>
   )
 }
