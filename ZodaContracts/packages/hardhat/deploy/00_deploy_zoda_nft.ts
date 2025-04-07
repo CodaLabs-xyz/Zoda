@@ -1,10 +1,15 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
+
+  // Get owner address from environment variable or use deployer as fallback
+  const ownerAddress = process.env.DEPLOYER_ADDRESS || deployer;
 
   // Configuration for different networks
   const config = {
@@ -28,7 +33,7 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
             config.symbol,
             config.baseURI,
             config.mintFee,
-            "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f", // owner address
+            ownerAddress, // Using environment variable or deployer address
           ],
         },
       },
