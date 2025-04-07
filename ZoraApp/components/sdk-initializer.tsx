@@ -5,15 +5,17 @@ import { sdk } from '@farcaster/frame-sdk'
 
 export function SdkInitializer() {
   useEffect(() => {
-    const initSdk = async () => {
+    const initializeSdk = async () => {
       try {
+        // Initialize the SDK and hide the loading screen
         await sdk.actions.ready()
+        console.log("Farcaster SDK initialized")
       } catch (error) {
-        console.error('Failed to initialize SDK:', error)
+        console.error("Failed to initialize Farcaster SDK:", error)
       }
     }
 
-    initSdk()
+    initializeSdk()
   }, [])
 
   return null // This component doesn't render anything

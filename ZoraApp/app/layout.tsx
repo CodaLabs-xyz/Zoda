@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { WagmiProvider } from "@/providers/wagmi-provider"
+import { WagmiConfig } from "@/providers/wagmi-provider"
 import { SdkInitializer } from "@/components/sdk-initializer"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -28,10 +28,10 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="zora-theme"
         >
-          <WagmiProvider>
+          <WagmiConfig>
             <SdkInitializer />
             {children}
-          </WagmiProvider>
+          </WagmiConfig>
         </ThemeProvider>
       </body>
     </html>
