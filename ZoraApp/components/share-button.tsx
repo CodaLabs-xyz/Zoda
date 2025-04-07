@@ -24,8 +24,12 @@ export function ShareButton({ username, sign, fortune, imageUrl, className }: Sh
 
     // Create the Warpcast URL
     let url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
+    
+    // If there's an image, add it as an embedded image
     if (imageUrl) {
-      url += `&embeds[]=${encodeURIComponent(imageUrl)}`
+      // Ensure we're using the full URL for the image
+      const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${window.location.origin}${imageUrl}`
+      url += `&embeds[]=${encodeURIComponent(fullImageUrl)}`
     }
 
     window.open(url, "_blank")
