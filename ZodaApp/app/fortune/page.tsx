@@ -35,6 +35,13 @@ export default function FortunePage() {
   const birthYear = searchParams.get("birthYear") || ""
   const signName = searchParams.get("sign") || ""
 
+  // Add a ref to track the generation process
+  const generationInProgress = useRef<{
+    fortune?: string
+    imageUrl?: string
+    ipfsHash?: string
+  } | null>(null)
+
   // State machine status
   type GenerationStatus = 'idle' | 'generating_fortune' | 'generating_image' | 'uploading_ipfs' | 'completed' | 'error'
   const [status, setStatus] = useState<GenerationStatus>('idle')
@@ -54,7 +61,25 @@ export default function FortunePage() {
     }
 
     async function generateAll() {
+      // If we already have a generation in progress, use its values
+      if (generationInProgress.current) {
+        if (generationInProgress.current.fortune) {
+          setFortune(generationInProgress.current.fortune)
+        }
+        if (generationInProgress.current.imageUrl) {
+          setImageUrl(generationInProgress.current.imageUrl)
+        }
+        if (generationInProgress.current.ipfsHash) {
+          setIpfsHash(generationInProgress.current.ipfsHash)
+        }
+        setStatus('completed')
+        return
+      }
+
       try {
+        // Initialize generation tracking
+        generationInProgress.current = {}
+
         // Step 1: Generate Fortune
         setStatus('generating_fortune')
         console.log('Starting fortune generation for:', { username, sign: signName, birthYear })
@@ -98,6 +123,7 @@ export default function FortunePage() {
         }
 
         setFortune(generatedFortune)
+        generationInProgress.current.fortune = generatedFortune
 
         // Step 2: Generate Image
         setStatus('generating_image')
@@ -125,6 +151,7 @@ export default function FortunePage() {
 
         console.log('Setting image URL:', imageData.imageUrl.substring(0, 50) + '...')
         setImageUrl(imageData.imageUrl)
+        generationInProgress.current.imageUrl = imageData.imageUrl
 
         // Step 3: Upload to IPFS
         setStatus('uploading_ipfs')
@@ -134,6 +161,7 @@ export default function FortunePage() {
         console.log('Setting IPFS data:', ipfsResult)
         setIpfsUrl(ipfsResult.url)
         setIpfsHash(ipfsResult.ipfsHash)
+        generationInProgress.current.ipfsHash = ipfsResult.ipfsHash
 
         // Complete
         setStatus('completed')
@@ -142,6 +170,7 @@ export default function FortunePage() {
         console.error("Generation error:", err)
         setError(err instanceof Error ? err.message : "An error occurred during generation")
         setStatus('error')
+        generationInProgress.current = null
       }
     }
 
@@ -168,6 +197,7 @@ export default function FortunePage() {
   }
 
   const handleRetry = () => {
+    generationInProgress.current = null
     setStatus('idle')
     setError("")
     setImageUrl("")
