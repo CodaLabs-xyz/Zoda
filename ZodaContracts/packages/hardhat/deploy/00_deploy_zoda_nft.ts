@@ -8,19 +8,34 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  // Get owner address from environment variable or use deployer as fallback
-  const ownerAddress = process.env.DEPLOYER_ADDRESS || deployer;
+  // Get owner address from environment variable
+  const ownerAddress = process.env.DEPLOYER_ADDRESS;
+  if (!ownerAddress) {
+    throw new Error("DEPLOYER_ADDRESS environment variable not set");
+  }
+  console.log("\n👤 Using owner address:", ownerAddress);
+  
+  // Get treasury address from environment variable or use owner address as fallback
+  const treasuryAddress = process.env.TREASURY_ADDRESS || ownerAddress;
+  console.log("💰 Using treasury address:", treasuryAddress);
 
   // Configuration for different networks
   const config = {
     name: "Zoda NFT",
     symbol: "ZODA",
     baseURI: "https://api.zoda.app/nft/",
-    // 0.01 ETH in wei
-    mintFee: ethers.parseEther("0.01"),
+    // 0.0005 ETH in wei
+    mintFee: ethers.parseEther("0.0005"),
   };
 
+  console.log("\n📝 Deployment Configuration:");
+  console.log("- Name:", config.name);
+  console.log("- Symbol:", config.symbol);
+  console.log("- Base URI:", config.baseURI);
+  console.log("- Mint Fee:", ethers.formatEther(config.mintFee), "ETH");
+
   // Deploy implementation
+  console.log("\n🚀 Deploying ZodaNFT...");
   const zodaNFTDeployment = await deploy("ZodaNFT", {
     from: deployer,
     proxy: {
@@ -33,7 +48,8 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
             config.symbol,
             config.baseURI,
             config.mintFee,
-            ownerAddress, // Using environment variable or deployer address
+            ownerAddress, // Contract owner
+            treasuryAddress, // Treasury address for fee collection
           ],
         },
       },
@@ -48,26 +64,42 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
     process.env.ETHERSCAN_API_KEY &&
     process.env.VERIFY_ON_DEPLOY
   ) {
+    console.log("\n🔍 Verifying contract on Etherscan...");
     try {
       await hre.run("verify:verify", {
         address: zodaNFTDeployment.implementation,
         constructorArguments: [],
       });
-      console.log("Implementation contract verified");
+      console.log("✅ Implementation contract verified");
     } catch (error) {
-      console.log("Error verifying implementation contract:", error);
+      console.log("❌ Error verifying implementation contract:", error);
     }
   }
 
   // Get the deployed contract instance
   const zodaNFT = await ethers.getContractAt("ZodaNFT", zodaNFTDeployment.address);
 
+  // Verify owner and treasury are set correctly
+  const contractOwner = await zodaNFT.owner();
+  const contractTreasury = await zodaNFT.treasuryAddress();
+
+  if (contractOwner.toLowerCase() !== ownerAddress.toLowerCase()) {
+    throw new Error(`Owner not set correctly. Expected ${ownerAddress}, got ${contractOwner}`);
+  }
+
+  if (contractTreasury.toLowerCase() !== treasuryAddress.toLowerCase()) {
+    throw new Error(`Treasury not set correctly. Expected ${treasuryAddress}, got ${contractTreasury}`);
+  }
+
   // Log deployment info
-  console.log("\n 📝 ZodaNFT Contract Info:");
+  console.log("\n📝 ZodaNFT Contract Info:");
   console.log("⚡️ Proxy Address:", zodaNFTDeployment.address);
   console.log("⚡️ Implementation Address:", zodaNFTDeployment.implementation);
-  console.log("⚡️ Owner:", await zodaNFT.owner());
+  console.log("⚡️ Owner:", contractOwner);
+  console.log("⚡️ Treasury:", contractTreasury);
   console.log("⚡️ Mint Fee:", ethers.formatEther(await zodaNFT.mintFee()), "ETH");
+
+  console.log("\n✅ Deployment completed successfully!");
 };
 
 export default deployZodaNFT;

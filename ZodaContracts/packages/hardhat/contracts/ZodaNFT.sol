@@ -32,10 +32,14 @@ contract ZodaNFT is
     // Minting fee in ETH
     uint256 public mintFee;
 
+    // Treasury address for fee collection
+    address payable public treasuryAddress;
+
     // Events
     event NFTMinted(address indexed to, uint256 indexed tokenId, string uri);
     event MintFeeUpdated(uint256 newFee);
     event BaseURIUpdated(string newBaseURI);
+    event TreasuryAddressUpdated(address newTreasury);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -47,7 +51,8 @@ contract ZodaNFT is
         string memory symbol,
         string memory baseURI,
         uint256 initialMintFee,
-        address initialOwner
+        address initialOwner,
+        address payable initialTreasury
     ) public initializer {
         __ERC721_init(name, symbol);
         __ERC721URIStorage_init();
@@ -58,6 +63,7 @@ contract ZodaNFT is
         _baseTokenURI = baseURI;
         mintFee = initialMintFee;
         _nextTokenId = 1;
+        treasuryAddress = initialTreasury;
 
         // Set default royalty to 2.5%
         _setDefaultRoyalty(initialOwner, 250);
@@ -70,6 +76,11 @@ contract ZodaNFT is
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, metadataURI);
+
+        // Auto-withdraw fees to treasury if balance exceeds 0.01 ETH
+        if (address(this).balance >= 0.01 ether) {
+            _withdrawFeesToTreasury();
+        }
 
         emit NFTMinted(to, tokenId, metadataURI);
 
@@ -87,11 +98,23 @@ contract ZodaNFT is
         emit BaseURIUpdated(newBaseURI);
     }
 
-    function withdrawFees() external onlyOwner {
+    function setTreasuryAddress(address payable newTreasury) external onlyOwner {
+        require(newTreasury != address(0), "Invalid treasury address");
+        treasuryAddress = newTreasury;
+        emit TreasuryAddressUpdated(newTreasury);
+    }
+
+    function withdrawFees() external {
+        _withdrawFeesToTreasury();
+    }
+
+    // Internal function to handle fee withdrawal
+    function _withdrawFeesToTreasury() internal {
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
+        require(treasuryAddress != address(0), "Treasury not set");
         
-        (bool success, ) = payable(owner()).call{value: balance}("");
+        (bool success, ) = treasuryAddress.call{value: balance}("");
         require(success, "Transfer failed");
     }
 

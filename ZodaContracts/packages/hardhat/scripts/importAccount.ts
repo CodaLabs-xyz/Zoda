@@ -41,13 +41,16 @@ const setNewEnvConfig = async (existingEnvConfig = {}) => {
   const newEnvConfig = {
     ...existingEnvConfig,
     DEPLOYER_PRIVATE_KEY_ENCRYPTED: encryptedJson,
+    DEPLOYER_ADDRESS: wallet.address,
   };
 
   // Store in .env
   fs.writeFileSync(envFilePath, stringify(newEnvConfig));
   console.log("\n📄 Encrypted Private Key saved to packages/hardhat/.env file");
-  console.log("🪄 Imported wallet address:", wallet.address, "\n");
+  console.log("🪄 Imported wallet address:", wallet.address);
+  console.log("✅ DEPLOYER_ADDRESS set in .env file\n");
   console.log("⚠️ Make sure to remember your password! You'll need it to decrypt the private key.");
+  console.log("💡 Tip: You can set TREASURY_ADDRESS in .env if you want fees to go to a different address.");
 };
 
 async function main() {

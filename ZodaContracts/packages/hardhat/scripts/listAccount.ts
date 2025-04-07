@@ -25,9 +25,25 @@ async function main() {
 
   const address = wallet.address;
   console.log(await QRCode.toString(address, { type: "terminal", small: true }));
-  console.log("Public address:", address, "\n");
+  console.log("Public address:", address);
+  
+  // Check if address matches DEPLOYER_ADDRESS
+  const deployerAddress = process.env.DEPLOYER_ADDRESS;
+  if (deployerAddress && deployerAddress.toLowerCase() !== address.toLowerCase()) {
+    console.log("\n⚠️ Warning: This address does not match DEPLOYER_ADDRESS in .env!");
+    console.log("Current DEPLOYER_ADDRESS:", deployerAddress);
+  }
+
+  // Show treasury address if set
+  const treasuryAddress = process.env.TREASURY_ADDRESS;
+  if (treasuryAddress) {
+    console.log("\n💰 Treasury address:", treasuryAddress);
+  } else {
+    console.log("\n💡 No TREASURY_ADDRESS set, fees will go to deployer address");
+  }
 
   // Balance on each network
+  console.log("\nNetwork Balances:")
   const availableNetworks = config.networks;
   for (const networkName in availableNetworks) {
     try {
@@ -39,6 +55,12 @@ async function main() {
       console.log("--", networkName, "-- 📡");
       console.log("   balance:", +ethers.formatEther(balance));
       console.log("   nonce:", +(await provider.getTransactionCount(address)));
+
+      // Show treasury balance if set
+      if (treasuryAddress) {
+        const treasuryBalance = await provider.getBalance(treasuryAddress);
+        console.log("   treasury balance:", +ethers.formatEther(treasuryBalance));
+      }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       console.log("Can't connect to network", networkName);
