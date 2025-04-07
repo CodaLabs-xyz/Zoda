@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useContext, useEffect } from "react"
+import { useState, useEffect } from "react"
+import { useAccount, useConnect } from 'wagmi'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,7 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Loader2, Sparkles, Wallet } from "lucide-react"
-import { WalletContext } from "@/providers/wagmi-provider"
 import Image from "next/image"
 import { sdk } from "@farcaster/frame-sdk"
 
@@ -32,7 +32,8 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
   const [isFarcasterReady, setIsFarcasterReady] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  const { isConnected, connect } = useContext(WalletContext)
+  const { isConnected } = useAccount()
+  const { connect, connectors } = useConnect()
 
   useEffect(() => {
     setMounted(true)
@@ -145,7 +146,10 @@ export function MintButton({ username, year, sign, fortune, imageUrl, className 
               </div>
             ) : !isConnected ? (
               <div className="flex flex-col space-y-2 w-full">
-                <Button onClick={connect} className="w-full bg-violet-600 hover:bg-violet-700">
+                <Button 
+                  onClick={() => connect({ connector: connectors[0] })} 
+                  className="w-full bg-violet-600 hover:bg-violet-700"
+                >
                   <Wallet className="mr-2 h-4 w-4" />
                   Connect Wallet
                 </Button>
