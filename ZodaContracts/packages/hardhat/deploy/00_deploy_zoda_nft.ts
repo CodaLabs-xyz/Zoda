@@ -28,7 +28,7 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
             config.symbol,
             config.baseURI,
             config.mintFee,
-            deployer, // initial owner
+            "0xc2564e41B7F5Cb66d2d99466450CfebcE9e8228f", // owner address
           ],
         },
       },

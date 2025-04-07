@@ -3,11 +3,10 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721RoyaltyUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/common/ERC2981Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
@@ -18,15 +17,14 @@ contract ZodaNFT is
     Initializable, 
     ERC721Upgradeable,
     ERC721URIStorageUpgradeable,
-    ERC721RoyaltyUpgradeable,
+    ERC2981Upgradeable,
     OwnableUpgradeable,
     UUPSUpgradeable 
 {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
     using Strings for uint256;
 
     // Token ID counter
-    CountersUpgradeable.Counter private _tokenIds;
+    uint256 private _nextTokenId;
 
     // Base URI for metadata
     string private _baseTokenURI;
@@ -53,29 +51,29 @@ contract ZodaNFT is
     ) public initializer {
         __ERC721_init(name, symbol);
         __ERC721URIStorage_init();
-        __ERC721Royalty_init();
-        __Ownable_init(initialOwner);
+        __ERC2981_init();
+        __Ownable_init();
         __UUPSUpgradeable_init();
 
         _baseTokenURI = baseURI;
         mintFee = initialMintFee;
+        _nextTokenId = 1;
 
         // Set default royalty to 2.5%
         _setDefaultRoyalty(initialOwner, 250);
+        transferOwnership(initialOwner);
     }
 
     function mint(address to, string memory metadataURI) public payable returns (uint256) {
         require(msg.value >= mintFee, "Insufficient payment");
 
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, metadataURI);
 
-        _safeMint(to, newTokenId);
-        _setTokenURI(newTokenId, metadataURI);
+        emit NFTMinted(to, tokenId, metadataURI);
 
-        emit NFTMinted(to, newTokenId, metadataURI);
-
-        return newTokenId;
+        return tokenId;
     }
 
     // Owner functions
@@ -109,11 +107,17 @@ contract ZodaNFT is
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721Upgradeable, ERC721RoyaltyUpgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable, ERC2981Upgradeable)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 
-    function _burn(uint256 tokenId) internal override(ERC721Upgradeable, ERC721URIStorageUpgradeable, ERC721RoyaltyUpgradeable) {
+    function _burn(uint256 tokenId) internal override(ERC721Upgradeable, ERC721URIStorageUpgradeable) {
         super._burn(tokenId);
+        _resetTokenRoyalty(tokenId);
     }
 } 
