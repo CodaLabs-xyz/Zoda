@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { MintButton } from "@/components/mint-button"
 import { ShareButton } from "@/components/share-button"
-import { ArrowLeft, Loader2, Download, RefreshCw } from "lucide-react"
+import { ArrowLeft, Loader2, Download, RefreshCw, Sparkles } from "lucide-react"
 
 export default function FortunePage() {
   const searchParams = useSearchParams()
@@ -26,6 +26,27 @@ export default function FortunePage() {
   const [imageUrl, setImageUrl] = useState("")
   const [isImageLoading, setIsImageLoading] = useState(false)
   const [imageError, setImageError] = useState("")
+  const [ipfsUrl, setIpfsUrl] = useState("")
+  const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false)
+  const [ipfsError, setIpfsError] = useState("")
+
+  // Function to upload image to IPFS
+  const uploadToIpfs = async (imageUrl: string) => {
+    const response = await fetch("/api/upload-to-ipfs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ imageUrl }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to upload to IPFS')
+    }
+
+    return response.json()
+  }
 
   // Function to generate the character image
   const generateCharacterImage = async () => {
@@ -34,6 +55,7 @@ export default function FortunePage() {
     try {
       setIsImageLoading(true)
       setImageError("")
+      setIpfsError("")
 
       // Construct a detailed prompt for the character image
       const prompt = `Create a mystical character portrait representing the Chinese zodiac sign ${signName}. The character should be ethereal and magical, with elements that symbolize crypto and blockchain technology. Style: digital art, cosmic, detailed, professional quality.`
@@ -66,6 +88,18 @@ export default function FortunePage() {
 
       if (imageData.imageUrl) {
         setImageUrl(imageData.imageUrl)
+        
+        // Upload to IPFS using the new API route
+        try {
+          setIsUploadingToIpfs(true)
+          const ipfsResult = await uploadToIpfs(imageData.imageUrl)
+          setIpfsUrl(ipfsResult.url)
+        } catch (ipfsError) {
+          console.error("IPFS upload error:", ipfsError)
+          setIpfsError("Failed to upload to IPFS")
+        } finally {
+          setIsUploadingToIpfs(false)
+        }
       } else {
         throw new Error("No image URL returned")
       }
@@ -195,10 +229,12 @@ export default function FortunePage() {
           <CardContent className="text-center">
             {/* Character Image with download button */}
             <div className="relative mb-6">
-              {isImageLoading ? (
+              {isImageLoading || isUploadingToIpfs ? (
                 <div className="w-full aspect-square flex flex-col items-center justify-center bg-violet-900/30 rounded-lg">
                   <Loader2 className="h-12 w-12 text-violet-400 animate-spin mb-4" />
-                  <p className="text-violet-200">Creating your character...</p>
+                  <p className="text-violet-200">
+                    {isImageLoading ? "Creating your character..." : "Uploading to IPFS..."}
+                  </p>
                 </div>
               ) : imageUrl ? (
                 <>
@@ -209,36 +245,34 @@ export default function FortunePage() {
                       fill
                       className="object-cover"
                     />
-                    <Button
-                      onClick={handleDownloadImage}
-                      size="icon"
-                      variant="ghost"
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="w-full aspect-square flex flex-col items-center justify-center bg-violet-900/30 rounded-lg">
-                  {imageError ? (
-                    <>
-                      <p className="text-6xl mb-4">{sign.emoji}</p>
-                      <p className="text-violet-300 text-center mb-4">{imageError}</p>
+                    <div className="absolute top-2 right-2 flex gap-2">
                       <Button
-                        onClick={generateCharacterImage}
-                        variant="outline"
-                        className="border-violet-300/30 text-violet-200 hover:bg-violet-800/30"
+                        onClick={handleDownloadImage}
+                        size="icon"
+                        variant="ghost"
+                        className="w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full"
+                        title="Download Image"
                       >
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Try Again
+                        <Download className="h-4 w-4" />
                       </Button>
-                    </>
-                  ) : (
-                    <p className="text-6xl">{sign.emoji}</p>
+                      {ipfsUrl && (
+                        <Button
+                          onClick={() => window.open(ipfsUrl, '_blank')}
+                          size="icon"
+                          variant="ghost"
+                          className="w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full"
+                          title="View on IPFS"
+                        >
+                          <Sparkles className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {ipfsError && (
+                    <p className="text-red-400 text-sm mt-2">{ipfsError}</p>
                   )}
-                </div>
-              )}
+                </>
+              ) : null}
             </div>
 
             {/* Fortune Text */}
