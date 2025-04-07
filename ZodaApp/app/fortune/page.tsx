@@ -13,6 +13,22 @@ import { MintButton } from "@/components/mint-button"
 import { ShareButton } from "@/components/share-button"
 import { ArrowLeft, Loader2, Download, RefreshCw, Sparkles } from "lucide-react"
 
+interface ZodiacSign {
+  name: string
+  years: number[]
+  emoji: string
+  element: string
+  traits: string[]
+}
+
+interface ShareButtonProps {
+  username: string
+  sign?: string
+  fortune: string
+  imageUrl: string
+  className?: string
+}
+
 export default function FortunePage() {
   const searchParams = useSearchParams()
   const username = searchParams.get("username") || ""
@@ -20,7 +36,7 @@ export default function FortunePage() {
   const signName = searchParams.get("sign") || ""
 
   const [fortune, setFortune] = useState("")
-  const [sign, setSign] = useState<any>(null)
+  const [sign, setSign] = useState<ZodiacSign | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [imageUrl, setImageUrl] = useState("")
@@ -29,6 +45,73 @@ export default function FortunePage() {
   const [ipfsUrl, setIpfsUrl] = useState("")
   const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false)
   const [ipfsError, setIpfsError] = useState("")
+
+  useEffect(() => {
+    async function generateFortune() {
+      if (!birthYear || !username || !signName) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        setError("")
+        const year = Number.parseInt(birthYear)
+        const zodiacSign = zodiac.getSign(year)
+        
+        // Ensure years is an array and cast to number[]
+        const normalizedSign: ZodiacSign = {
+          ...zodiacSign,
+          years: Array.isArray(zodiacSign.years) 
+            ? zodiacSign.years 
+            : Array.from(zodiacSign.years || []).map(Number)
+        }
+        setSign(normalizedSign)
+
+        // Try to get an AI-generated fortune
+        try {
+          const response = await fetch("/api/generate-fortune", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username,
+              sign: signName,
+              birthYear,
+            }),
+          })
+
+          const data = await response.json()
+
+          if (response.ok && data.fortune) {
+            setFortune(data.fortune)
+          } else {
+            console.error("Fortune API error:", data)
+            // Fallback to predefined fortunes if API fails
+            const signFortunes = fortunes[zodiacSign.name] || fortunes.default
+            const randomIndex = Math.floor(Math.random() * signFortunes.length)
+            setFortune(signFortunes[randomIndex])
+          }
+        } catch (apiError) {
+          console.error("API error:", apiError)
+          // Fallback to predefined fortunes
+          const signFortunes = fortunes[zodiacSign.name] || fortunes.default
+          const randomIndex = Math.floor(Math.random() * signFortunes.length)
+          setFortune(signFortunes[randomIndex])
+        }
+
+        // Generate character image
+        await generateCharacterImage()
+      } catch (err) {
+        console.error(err)
+        setError("Failed to generate your fortune. Please try again.")
+      }
+      setIsLoading(false)
+    }
+
+    generateFortune()
+  }, [birthYear, username, signName])
 
   // Function to upload image to IPFS
   const uploadToIpfs = async (imageUrl: string) => {
@@ -70,7 +153,6 @@ export default function FortunePage() {
         }),
       })
 
-      // Handle non-OK responses
       if (!imageResponse.ok) {
         const errorData = await imageResponse.json().catch(() => ({}))
         console.error("Image API error response:", errorData)
@@ -78,7 +160,6 @@ export default function FortunePage() {
         return
       }
 
-      // Try to parse the JSON response
       let imageData
       try {
         imageData = await imageResponse.json()
@@ -91,7 +172,6 @@ export default function FortunePage() {
       if (imageData.imageUrl) {
         setImageUrl(imageData.imageUrl)
         
-        // Upload to IPFS using the new API route
         try {
           setIsUploadingToIpfs(true)
           const ipfsResult = await uploadToIpfs(imageData.imageUrl)
@@ -112,66 +192,6 @@ export default function FortunePage() {
       setIsImageLoading(false)
     }
   }
-
-  useEffect(() => {
-    async function generateFortune() {
-      if (!birthYear || !username || !signName) {
-        setIsLoading(false)
-        return
-      }
-
-      try {
-        setIsLoading(true)
-        setError("")
-        const year = Number.parseInt(birthYear)
-        const zodiacSign = zodiac.getSign(year)
-        setSign(zodiacSign)
-
-        // Try to get an AI-generated fortune
-        try {
-          const response = await fetch("/api/generate-fortune", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username,
-              sign: signName,
-              birthYear,
-            }),
-          })
-
-          const data = await response.json()
-
-          if (response.ok && data.fortune) {
-            setFortune(data.fortune)
-          } else {
-            console.error("Fortune API error:", data)
-            // Fallback to predefined fortunes if API fails
-            const signFortunes = fortunes[zodiacSign.name] || fortunes.default
-            const randomIndex = Math.floor(Math.random() * signFortunes.length)
-            setFortune(signFortunes[randomIndex])
-          }
-        } catch (apiError) {
-          console.error("API error:", apiError)
-          // Fallback to predefined fortunes
-          const signFortunes = fortunes[zodiacSign.name] || fortunes.default
-          const randomIndex = Math.floor(Math.random() * signFortunes.length)
-          setFortune(signFortunes[randomIndex])
-        }
-
-        // Generate character image independently of fortune
-        await generateCharacterImage()
-      } catch (err) {
-        console.error(err)
-        setError("Failed to generate your fortune. Please try again.")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    generateFortune()
-  }, [birthYear, username, signName])
 
   const handleDownloadImage = () => {
     if (imageUrl) {
@@ -196,7 +216,6 @@ export default function FortunePage() {
     )
   }
 
-  // Only show error state if we have no fortune and no sign
   if ((!fortune && !sign) || error) {
     return (
       <main className="flex min-h-screen flex-col items-center p-4 bg-gradient-to-b from-violet-900 to-indigo-950">
@@ -227,9 +246,11 @@ export default function FortunePage() {
             <CardTitle className="text-2xl font-bold text-white">
               <span className="text-violet-300">{username}</span>'s Fortune
             </CardTitle>
-            <CardDescription className="text-violet-200">
-              {sign.emoji} {sign.name} ({sign.years.join(", ")})
-            </CardDescription>
+            {sign && (
+              <CardDescription className="text-violet-200">
+                {sign.emoji} {sign.name} ({sign.years.join(", ")})
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent className="text-center">
             {/* Character Image with download button */}
@@ -246,7 +267,7 @@ export default function FortunePage() {
                   <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                     <Image
                       src={imageUrl}
-                      alt={`${sign.name} Character`}
+                      alt={`${sign?.name} Character`}
                       fill
                       className="object-cover"
                       onError={(e) => {
@@ -305,18 +326,17 @@ export default function FortunePage() {
             <div className="flex flex-col sm:flex-row gap-4 w-full items-center justify-center">
               <ShareButton
                 username={username}
-                sign={sign.name}
+                sign={sign?.name || signName}
                 fortune={fortune}
                 imageUrl={imageUrl}
-                className="w-full sm:w-auto"
+                className="w-full"
               />
               <MintButton 
                 username={username} 
                 year={birthYear} 
-                sign={sign.name} 
+                sign={sign?.name || signName} 
                 fortune={fortune}
                 imageUrl={imageUrl}
-                className="w-full sm:w-auto" 
               />
             </div>
             <Link href="/" className="w-full">

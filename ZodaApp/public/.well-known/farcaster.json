@@ -1,18 +1,18 @@
 {
-    "accountAssociation": {
-      "header": "eyJmaWQiOjIxMDY3MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDAxMWM1ZjM3N2M2OTY4ZjhjOGNmODZmY2Y3OGYxMWFhOTgyMmJlOGYifQ",
-      "payload": "eyJkb21haW4iOiJjb2RhbGFicy5uZ3Jvay5pbyJ9",
-      "signature": ""
-    },
-    "frame": {
-      "name": "Zoda",
-      "version": "1",
-      "iconUrl": "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
-      "homeUrl": "https://codalabs.ngrok.io",
-      "imageUrl": "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
-      "buttonTitle": "Reveal My Fortune",
-      "splashImageUrl": "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
-      "splashBackgroundColor": "#47218f",
-      "webhookUrl": "https://codalabs.ngrok.io/api/webhook"
-    }
+  "accountAssociation": {
+    "header": "eyJmaWQiOjIxMDY3MSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDAxMWM1ZjM3N2M2OTY4ZjhjOGNmODZmY2Y3OGYxMWFhOTgyMmJlOGYifQ",
+    "payload": "eyJkb21haW4iOiJjb2RhbGFicy5uZ3Jvay5pbyJ9",
+    "signature": ""
+  },
+  "frame": {
+    "name": "Zoda",
+    "version": "1",
+    "iconUrl": "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
+    "homeUrl": "https://codalabs.ngrok.io",
+    "imageUrl": "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
+    "buttonTitle": "Reveal My Fortune",
+    "splashImageUrl": "https://ipfs.io/ipfs/bafybeigau5ucdsw6lnj4lntodl5aeez47wkeb7qgrqswocmkybvt3ww3tm",
+    "splashBackgroundColor": "#47218f",
+    "webhookUrl": "https://codalabs.ngrok.io/api/webhook"
   }
+}
