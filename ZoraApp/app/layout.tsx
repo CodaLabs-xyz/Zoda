@@ -4,13 +4,13 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { WagmiProvider } from "@/providers/wagmi-provider"
-import { SdkInitializer } from "@/components/sdk-initializer"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Zoda - Your Crypto Fortune Teller",
+  title: "Zoda - Crypto Fortune Teller",
   description: "Discover your crypto fortune based on your Chinese zodiac sign",
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -28,14 +28,13 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="zora-theme"
         >
-          <WagmiProvider>
-            <SdkInitializer />
-            {children}
-          </WagmiProvider>
+          <WagmiProvider>{children}</WagmiProvider>
         </ThemeProvider>
       </body>
     </html>
   )
 }
+
+
 
 import './globals.css'
