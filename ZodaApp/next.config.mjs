@@ -29,6 +29,7 @@ const nextConfig = {
   },
   // Add allowed origins for development
   allowedDevOrigins: [
+    'zoda.codalabs.xyz',
     'codalabs.ngrok.io',
     'localhost',
     '127.0.0.1'

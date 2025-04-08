@@ -17,7 +17,8 @@ interface NFTAttribute {
 const MetadataSchema = z.object({
   name: z.string().min(1),
   description: z.string(),
-  image: z.string().startsWith('ipfs://'),
+  image: z.string().startsWith('https://ipfs.io/ipfs/'),
+  external_url: z.string().optional(),
   attributes: z.array(z.object({
     trait_type: z.string(),
     value: z.string()

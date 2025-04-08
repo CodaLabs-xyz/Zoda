@@ -51,6 +51,11 @@ export const zodaNftAbi = [
         internalType: "address",
         name: "to",
         type: "address",
+      },
+      {
+        internalType: "string",
+        name: "metadataURI",
+        type: "string",
       }
     ],
     name: "mint",
@@ -67,6 +72,19 @@ export const zodaNftAbi = [
   {
     inputs: [],
     name: "mintFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "nextTokenId",
     outputs: [
       {
         internalType: "uint256",
@@ -99,27 +117,20 @@ export const zodaNftAbi = [
   {
     inputs: [
       {
-        internalType: "string",
-        name: "newBaseURI",
-        type: "string",
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
       },
     ],
-    name: "setBaseURI",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
+    name: "ownerOf",
+    outputs: [
       {
-        internalType: "string",
-        name: "newSuffix",
-        type: "string",
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    name: "setURISuffix",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -136,6 +147,12 @@ export const zodaNftAbi = [
         internalType: "uint256",
         name: "tokenId",
         type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "uri",
+        type: "string",
       }
     ],
     name: "NFTMinted",

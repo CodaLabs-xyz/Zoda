@@ -6,6 +6,7 @@ interface NFTMetadata {
   name: string
   description: string
   image: string
+  external_url?: string
   attributes: {
     trait_type: string
     value: string
@@ -30,12 +31,14 @@ export function createNFTMetadata({
   year,
   fortune,
   imageUrl,
+  tokenId,
 }: {
   username: string
   sign: string
   year: string
   fortune: string
   imageUrl: string
+  tokenId?: string
 }): NFTMetadata {
   // Convert ipfs:// URLs to https gateway URLs for preview
   const formattedImageUrl = imageUrl.startsWith('ipfs://')
@@ -45,10 +48,15 @@ export function createNFTMetadata({
       : `https://ipfs.io/ipfs/${imageUrl}`
 
   const metadata = {
-    name: `${username}'s ${sign} Fortune`,
+    name: tokenId ? `Zoda NFT #${tokenId}` : `${username}'s ${sign} Fortune`,
     description: fortune,
-    image: imageUrl, // Keep original ipfs:// URL for metadata
+    image: formattedImageUrl, // Use gateway URL for better compatibility
+    external_url: "https://zoda.app",
     attributes: [
+      {
+        trait_type: 'Collection',
+        value: 'Zoda'
+      },
       {
         trait_type: 'Zodiac Sign',
         value: sign,
@@ -96,6 +104,39 @@ export function useNFTMint() {
     hash: mintHash,
   })
 
+  const uploadMetadataToIPFS = async (metadata: NFTMetadata): Promise<string> => {
+    console.log('Uploading metadata to IPFS with full details:', {
+      name: metadata.name,
+      description: metadata.description.substring(0, 100) + '...',
+      image: metadata.image,
+      attributes: metadata.attributes
+    })
+
+    const response = await fetch('/api/upload-metadata', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metadata),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('Failed to upload metadata:', error)
+      throw new Error(error.error || 'Failed to upload metadata to IPFS')
+    }
+
+    const { metadataUrl } = await response.json()
+    console.log('Metadata uploaded successfully:', { 
+      metadataUrl,
+      originalImage: metadata.image
+    })
+
+    // Convert ipfs:// to https:// for better compatibility
+    const gatewayUrl = metadataUrl.replace('ipfs://', 'https://ipfs.io/ipfs/')
+    return gatewayUrl
+  }
+
   const handleMint = async (metadata: NFTMetadata) => {
     try {
       if (!address) throw new Error('Wallet not connected')
@@ -109,10 +150,14 @@ export function useNFTMint() {
         attributes: metadata.attributes
       })
 
-      // Mint NFT with just the address and mint price
+      const metadataUrl = await uploadMetadataToIPFS(metadata)
+      console.log('Metadata URL for minting:', metadataUrl)
+
+      // Mint NFT with metadata URL and mint price
       console.log('Minting NFT with params:', {
         contract: CONTRACT_ADDRESS,
         to: address,
+        metadataUrl,
         value: MINT_PRICE
       })
 
@@ -120,7 +165,7 @@ export function useNFTMint() {
         address: CONTRACT_ADDRESS,
         abi: zodaNftAbi,
         functionName: 'mint',
-        args: [address as Address],
+        args: [address, metadataUrl] as const,
         value: parseEther(MINT_PRICE),
       })
 
