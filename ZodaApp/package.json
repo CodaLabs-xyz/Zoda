@@ -9,6 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dynamic-labs/assert-package-version": "^4.10.4",
+    "@dynamic-labs/ethereum-core": "^4.10.4",
+    "@dynamic-labs/sdk-react": "^0.18.30",
+    "@dynamic-labs/sdk-react-core": "^4.10.4",
+    "@dynamic-labs/wagmi-connector": "^4.10.4",
+    "@dynamic-labs/wallet-connector-core": "^4.10.4",
     "@farcaster/frame-sdk": "^0.0.32",
     "@farcaster/frame-wagmi-connector": "^0.0.20",
     "@hookform/resolvers": "^3.9.1",
@@ -52,9 +58,9 @@
     "lucide-react": "^0.454.0",
     "next": "15.2.4",
     "next-themes": "^0.4.4",
-    "react": "^19",
+    "react": "^18.3.1",
     "react-day-picker": "8.10.1",
-    "react-dom": "^19",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.0",
@@ -70,6 +76,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "pino-pretty": "^13.0.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
