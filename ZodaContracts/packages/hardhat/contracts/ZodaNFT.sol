@@ -29,6 +29,9 @@ contract ZodaNFT is
     // Base URI for metadata
     string private _baseTokenURI;
 
+    // Token URI suffix (e.g. ".json")
+    string private _uriSuffix;
+
     // Minting fee in ETH
     uint256 public mintFee;
 
@@ -39,6 +42,7 @@ contract ZodaNFT is
     event NFTMinted(address indexed to, uint256 indexed tokenId, string uri);
     event MintFeeUpdated(uint256 newFee);
     event BaseURIUpdated(string newBaseURI);
+    event URISuffixUpdated(string newSuffix);
     event TreasuryAddressUpdated(address newTreasury);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -61,6 +65,7 @@ contract ZodaNFT is
         __UUPSUpgradeable_init();
 
         _baseTokenURI = baseURI;
+        _uriSuffix = ".json";
         mintFee = initialMintFee;
         _nextTokenId = 1;
         treasuryAddress = initialTreasury;
@@ -70,19 +75,18 @@ contract ZodaNFT is
         transferOwnership(initialOwner);
     }
 
-    function mint(address to, string memory metadataURI) public payable returns (uint256) {
+    function mint(address to) public payable returns (uint256) {
         require(msg.value >= mintFee, "Insufficient payment");
 
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, metadataURI);
 
         // Auto-withdraw fees to treasury if balance exceeds 0.01 ETH
         if (address(this).balance >= 0.01 ether) {
             _withdrawFeesToTreasury();
         }
 
-        emit NFTMinted(to, tokenId, metadataURI);
+        emit NFTMinted(to, tokenId, tokenURI(tokenId));
 
         return tokenId;
     }
@@ -96,6 +100,11 @@ contract ZodaNFT is
     function setBaseURI(string memory newBaseURI) external onlyOwner {
         _baseTokenURI = newBaseURI;
         emit BaseURIUpdated(newBaseURI);
+    }
+
+    function setURISuffix(string memory newSuffix) external onlyOwner {
+        _uriSuffix = newSuffix;
+        emit URISuffixUpdated(newSuffix);
     }
 
     function setTreasuryAddress(address payable newTreasury) external onlyOwner {
@@ -127,7 +136,12 @@ contract ZodaNFT is
 
     // The following functions are overrides required by Solidity
     function tokenURI(uint256 tokenId) public view override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (string memory) {
-        return super.tokenURI(tokenId);
+        require(_exists(tokenId), "URI query for nonexistent token");
+        
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 
+            ? string(abi.encodePacked(baseURI, tokenId.toString(), _uriSuffix))
+            : "";
     }
 
     function supportsInterface(bytes4 interfaceId)
