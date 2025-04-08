@@ -35,11 +35,12 @@ interface MintButtonProps {
   sign: string
   fortune: string
   imageUrl?: string
+  ipfsUrl?: string
   ipfsHash?: string
   className?: string
 }
 
-export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, className }: MintButtonProps) {
+export function MintButton({ username, year, sign, fortune, imageUrl, ipfsUrl,ipfsHash, className }: MintButtonProps) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState("")
   const [isFarcasterReady, setIsFarcasterReady] = useState(false)
@@ -202,8 +203,15 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
     if (!mintedTokenId) return
 
     const baseUrl = TARGET_CHAIN_ID === 8453 ? 'basescan.org' : 'base-sepolia.blockscout.com'
-    const text = `🎉 Just minted my Zoda Fortune NFT #${mintedTokenId}! As a ${sign}, "${fortune}" Check it out on https://${baseUrl}/token/${CONTRACT_ADDRESS}/instance/${mintedTokenId}`
-    const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
+    //const text = `🎉 Just minted my Zoda Fortune NFT #${mintedTokenId}! As a ${sign}, "${fortune}" Check it out on https://${baseUrl}/token/${CONTRACT_ADDRESS}/instance/${mintedTokenId}`
+    const text = `🎉 Just minted my Zoda Fortune NFT #${mintedTokenId}! As a ${sign}, "${fortune}".`
+    let url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
+
+    // Assuming you have access to ipfsUrl
+    if (ipfsUrl) {
+      //const gatewayUrl = `https://ipfs.io/ipfs/${ipfsUrl.replace('ipfs://', '')}`
+      url += `&embeds[]=${encodeURIComponent(ipfsUrl)}`
+    }    
     window.open(url, '_blank')
   }
 

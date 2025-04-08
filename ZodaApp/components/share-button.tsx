@@ -13,6 +13,9 @@ interface ShareButtonProps {
 
 export function ShareButton({ username, sign, fortune, ipfsUrl, className }: ShareButtonProps) {
   const handleShare = () => {
+
+    console.log("ipfsUrl", ipfsUrl);
+
     let text = `🔮 My crypto fortune from Zoda: As a ${sign}, ${fortune}`
 
     // Add image if available

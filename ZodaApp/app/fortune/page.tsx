@@ -129,7 +129,10 @@ export default function FortunePage() {
         setStatus('generating_image')
         console.log('Starting character image generation for sign:', signName)
 
-        const prompt = `Create a mystical character portrait representing the Chinese zodiac sign ${signName}. The character should be ethereal and magical, with elements that symbolize crypto and blockchain technology. Style: digital art, cosmic, detailed, professional quality.`
+        //const prompt = `Create a mystical character portrait representing the Chinese zodiac sign ${signName}. The character should be ethereal and magical, with elements that symbolize crypto and blockchain technology. Style: digital art, cosmic, detailed, professional quality.`
+
+        const prompt = `This digital artwork blends anime and cosmic art to depict a mystical character embodying the ${signName} from the Chinese zodiac, intertwined with cryptocurrency themes. The character boasts flowing blue and turquoise hair, large ${signName} caracteristics adorned with starry constellations, and a glowing blockchain symbol floating beside the character, while the character holds a radiant crypto symbol that illuminates the character's robe, all set against an enchanting starry backdrop.`
+ 
         console.log('Using image generation prompt:', prompt)
 
         const imageResponse = await fetch("/api/generate-image", {
@@ -335,6 +338,7 @@ export default function FortunePage() {
                 sign={signName}
                 fortune={fortune}
                 imageUrl={imageUrl}
+                ipfsUrl={ipfsUrl}
                 ipfsHash={ipfsHash}
                 className="mt-4"
               />
