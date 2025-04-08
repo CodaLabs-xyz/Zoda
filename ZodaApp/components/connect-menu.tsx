@@ -49,7 +49,7 @@ export function ConnectMenu() {
     )
   }
 
-  if (isConnected && address) {
+  if (isConnected) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -75,19 +75,33 @@ export function ConnectMenu() {
     )
   }
 
+  const handleConnect = async () => {
+    try {
+      if (isFarcaster) {
+        // In Farcaster context, use the Farcaster connector
+        await connect({ connector: connectors.find(c => c.id === 'farcasterFrame') })
+      } else {
+        // In browser context, prefer injected connector (MetaMask etc) if available
+        const injectedConnector = connectors.find(c => c.id === 'injected')
+        const walletConnectConnector = connectors.find(c => c.id === 'walletConnect')
+        
+        // Try injected first, fall back to WalletConnect
+        if (injectedConnector && window.ethereum) {
+          await connect({ connector: injectedConnector })
+        } else if (walletConnectConnector) {
+          await connect({ connector: walletConnectConnector })
+        } else {
+          console.error('No suitable wallet connector found')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to connect wallet:', error)
+    }
+  }
+
   return (
     <Button
-      onClick={async () => {
-        try {
-          if (isFarcaster) {
-            await connect({ connector: connectors[0] })
-          } else {
-            console.error('Not in Farcaster context')
-          }
-        } catch (error) {
-          console.error('Failed to connect wallet:', error)
-        }
-      }}
+      onClick={handleConnect}
       className={cn(
         "bg-violet-600 hover:bg-violet-700",
         "text-white",

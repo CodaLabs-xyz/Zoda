@@ -1,6 +1,7 @@
 import { http, createConfig } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector'
+import { injected, walletConnect } from 'wagmi/connectors'
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
@@ -14,10 +15,19 @@ const transports = {
   [baseSepolia.id]: http(),
 } as const
 
+// WalletConnect project ID is required for WalletConnect v2
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+
+if (!projectId) {
+  throw new Error('NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not defined')
+}
+
 export const config = createConfig({
   chains: [chain],
   transports,
   connectors: [
-    miniAppConnector()
+    miniAppConnector(),
+    injected(),
+    walletConnect({ projectId }),
   ]
 }) 
