@@ -322,13 +322,13 @@ export default function FortunePage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-3">
             <div className="flex flex-col sm:flex-row gap-4 w-full items-center justify-center">
-              <ShareButton
+              {/* <ShareButton
                 username={username}
                 sign={signName}
                 fortune={fortune}
                 ipfsUrl={ipfsUrl}
                 className="mt-4"
-              />
+              /> */}
               <MintButton
                 username={username}
                 year={birthYear}
