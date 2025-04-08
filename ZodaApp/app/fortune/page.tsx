@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -35,31 +35,58 @@ export default function FortunePage() {
   const birthYear = searchParams.get("birthYear") || ""
   const signName = searchParams.get("sign") || ""
 
+  // Add a ref to track the generation process
+  const generationInProgress = useRef<{
+    fortune?: string
+    imageUrl?: string
+    ipfsHash?: string
+  } | null>(null)
+
+  // State machine status
+  type GenerationStatus = 'idle' | 'generating_fortune' | 'generating_image' | 'uploading_ipfs' | 'completed' | 'error'
+  const [status, setStatus] = useState<GenerationStatus>('idle')
+  
   const [fortune, setFortune] = useState("")
   const [sign, setSign] = useState<ZodiacSign | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
-  const [imageUrl, setImageUrl] = useState("")
-  const [isImageLoading, setIsImageLoading] = useState(false)
-  const [imageError, setImageError] = useState("")
-  const [ipfsUrl, setIpfsUrl] = useState("")
-  const [isUploadingToIpfs, setIsUploadingToIpfs] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string>("")
+  const [ipfsUrl, setIpfsUrl] = useState<string>("")
+  const [ipfsHash, setIpfsHash] = useState<string>("")
   const [ipfsError, setIpfsError] = useState("")
 
   useEffect(() => {
-    async function generateFortune() {
-      if (!birthYear || !username || !signName) {
-        setIsLoading(false)
+    // Skip if we're not in idle state or missing required params
+    if (status !== 'idle' || !birthYear || !username || !signName) {
+      return
+    }
+
+    async function generateAll() {
+      // If we already have a generation in progress, use its values
+      if (generationInProgress.current) {
+        if (generationInProgress.current.fortune) {
+          setFortune(generationInProgress.current.fortune)
+        }
+        if (generationInProgress.current.imageUrl) {
+          setImageUrl(generationInProgress.current.imageUrl)
+        }
+        if (generationInProgress.current.ipfsHash) {
+          setIpfsHash(generationInProgress.current.ipfsHash)
+        }
+        setStatus('completed')
         return
       }
 
       try {
-        setIsLoading(true)
-        setError("")
+        // Initialize generation tracking
+        generationInProgress.current = {}
+
+        // Step 1: Generate Fortune
+        setStatus('generating_fortune')
+        console.log('Starting fortune generation for:', { username, sign: signName, birthYear })
+        
         const year = Number.parseInt(birthYear)
         const zodiacSign = zodiac.getSign(year)
         
-        // Ensure years is an array and cast to number[]
         const normalizedSign: ZodiacSign = {
           ...zodiacSign,
           years: Array.isArray(zodiacSign.years) 
@@ -68,141 +95,121 @@ export default function FortunePage() {
         }
         setSign(normalizedSign)
 
-        // Try to get an AI-generated fortune
+        // Generate fortune
+        let generatedFortune = ""
         try {
           const response = await fetch("/api/generate-fortune", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              username,
-              sign: signName,
-              birthYear,
-            }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, sign: signName, birthYear }),
           })
 
           const data = await response.json()
 
           if (response.ok && data.fortune) {
-            setFortune(data.fortune)
+            console.log('Fortune generated successfully:', data.fortune.substring(0, 50) + '...')
+            generatedFortune = data.fortune
           } else {
             console.error("Fortune API error:", data)
-            // Fallback to predefined fortunes if API fails
             const signFortunes = fortunes[zodiacSign.name] || fortunes.default
-            const randomIndex = Math.floor(Math.random() * signFortunes.length)
-            setFortune(signFortunes[randomIndex])
+            generatedFortune = signFortunes[Math.floor(Math.random() * signFortunes.length)]
+            console.log('Using fallback fortune:', generatedFortune.substring(0, 50) + '...')
           }
         } catch (apiError) {
           console.error("API error:", apiError)
-          // Fallback to predefined fortunes
           const signFortunes = fortunes[zodiacSign.name] || fortunes.default
-          const randomIndex = Math.floor(Math.random() * signFortunes.length)
-          setFortune(signFortunes[randomIndex])
+          generatedFortune = signFortunes[Math.floor(Math.random() * signFortunes.length)]
+          console.log('Using fallback fortune after error:', generatedFortune.substring(0, 50) + '...')
         }
 
-        // Generate character image
-        await generateCharacterImage()
+        setFortune(generatedFortune)
+        generationInProgress.current.fortune = generatedFortune
+
+        // Step 2: Generate Image
+        setStatus('generating_image')
+        console.log('Starting character image generation for sign:', signName)
+
+        const prompt = `Create a mystical character portrait representing the Chinese zodiac sign ${signName}. The character should be ethereal and magical, with elements that symbolize crypto and blockchain technology. Style: digital art, cosmic, detailed, professional quality.`
+        console.log('Using image generation prompt:', prompt)
+
+        const imageResponse = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+        })
+
+        if (!imageResponse.ok) {
+          throw new Error('Failed to generate image')
+        }
+
+        const imageData = await imageResponse.json()
+        console.log('Image generated successfully:', imageData)
+
+        if (!imageData.imageUrl) {
+          throw new Error('No image URL returned')
+        }
+
+        console.log('Setting image URL:', imageData.imageUrl.substring(0, 50) + '...')
+        setImageUrl(imageData.imageUrl)
+        generationInProgress.current.imageUrl = imageData.imageUrl
+
+        // Step 3: Upload to IPFS
+        setStatus('uploading_ipfs')
+        console.log('Starting IPFS upload for image:', imageData.imageUrl.substring(0, 50) + '...')
+        
+        const ipfsResult = await uploadToIpfs(imageData.imageUrl)
+        console.log('Setting IPFS data:', ipfsResult)
+        setIpfsUrl(ipfsResult.url)
+        setIpfsHash(ipfsResult.ipfsHash)
+        generationInProgress.current.ipfsHash = ipfsResult.ipfsHash
+
+        // Complete
+        setStatus('completed')
+        console.log('Generation process completed')
       } catch (err) {
-        console.error(err)
-        setError("Failed to generate your fortune. Please try again.")
+        console.error("Generation error:", err)
+        setError(err instanceof Error ? err.message : "An error occurred during generation")
+        setStatus('error')
+        generationInProgress.current = null
       }
-      setIsLoading(false)
     }
 
-    generateFortune()
-  }, [birthYear, username, signName])
+    generateAll()
+  }, [birthYear, username, signName, status])
 
   // Function to upload image to IPFS
   const uploadToIpfs = async (imageUrl: string) => {
     const response = await fetch("/api/upload-to-ipfs", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ imageUrl }),
     })
 
     if (!response.ok) {
       const error = await response.json()
+      console.error('IPFS upload failed:', error)
       throw new Error(error.error || 'Failed to upload to IPFS')
     }
 
-    return response.json()
+    const result = await response.json()
+    console.log('IPFS upload completed:', result)
+    return result
   }
 
-  // Function to generate the character image
-  const generateCharacterImage = async () => {
-    if (!signName) return
-
-    try {
-      setIsImageLoading(true)
-      setImageError("")
-      setIpfsError("")
-
-      // Construct a detailed prompt for the character image
-      const prompt = `Create a mystical character portrait representing the Chinese zodiac sign ${signName}. The character should be ethereal and magical, with elements that symbolize crypto and blockchain technology. Style: digital art, cosmic, detailed, professional quality.`
-
-      const imageResponse = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-        }),
-      })
-
-      if (!imageResponse.ok) {
-        const errorData = await imageResponse.json().catch(() => ({}))
-        console.error("Image API error response:", errorData)
-        setImageError(errorData.error || `Failed to generate image`)
-        return
-      }
-
-      let imageData
-      try {
-        imageData = await imageResponse.json()
-      } catch (parseError) {
-        console.error("Error parsing image response:", parseError)
-        setImageError("Failed to parse image response")
-        return
-      }
-
-      if (imageData.imageUrl) {
-        setImageUrl(imageData.imageUrl)
-        
-        try {
-          setIsUploadingToIpfs(true)
-          const ipfsResult = await uploadToIpfs(imageData.imageUrl)
-          setIpfsUrl(ipfsResult.url)
-        } catch (ipfsError) {
-          console.error("IPFS upload error:", ipfsError)
-          setIpfsError("Failed to upload to IPFS")
-        } finally {
-          setIsUploadingToIpfs(false)
-        }
-      } else {
-        setImageError("No image URL returned")
-      }
-    } catch (err) {
-      console.error("Image generation error:", err)
-      setImageError(err instanceof Error ? err.message : "Could not generate character image")
-    } finally {
-      setIsImageLoading(false)
-    }
+  const handleRetry = () => {
+    generationInProgress.current = null
+    setStatus('idle')
+    setError("")
+    setImageUrl("")
+    setIpfsUrl("")
+    setIpfsHash("")
+    setIpfsError("")
   }
 
-  const handleDownloadImage = () => {
-    if (imageUrl) {
-      const link = document.createElement("a")
-      link.href = imageUrl
-      link.download = `zora-${signName.toLowerCase()}-character.png`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
+  // Loading states
+  const isLoading = status === 'generating_fortune' || status === 'generating_image' || status === 'uploading_ipfs'
+  const isImageLoading = status === 'generating_image'
+  const isUploadingToIpfs = status === 'uploading_ipfs'
 
   if (isLoading) {
     return (
@@ -266,25 +273,16 @@ export default function FortunePage() {
                 <>
                   <div className="relative w-full aspect-square rounded-lg overflow-hidden">
                     <Image
-                      src={imageUrl}
+                      src={ipfsUrl || imageUrl}
                       alt={`${sign?.name} Character`}
                       fill
                       className="object-cover"
                       onError={(e) => {
                         console.error("Image failed to load:", imageUrl)
-                        setImageError("Failed to load the generated image")
+                        setIpfsError("Failed to load the generated image")
                       }}
                     />
                     <div className="absolute top-2 right-2 flex gap-2">
-                      <Button
-                        onClick={handleDownloadImage}
-                        size="icon"
-                        variant="ghost"
-                        className="w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full"
-                        title="Download Image"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
                       {ipfsUrl && (
                         <Button
                           onClick={() => window.open(ipfsUrl, '_blank')}
@@ -298,11 +296,11 @@ export default function FortunePage() {
                       )}
                     </div>
                   </div>
-                  {(imageError || ipfsError) && (
+                  {(ipfsError) && (
                     <div className="mt-2 p-2 rounded bg-red-500/10 border border-red-500/20">
-                      <p className="text-red-400 text-sm">{imageError || ipfsError}</p>
+                      <p className="text-red-400 text-sm">{ipfsError}</p>
                       <Button
-                        onClick={generateCharacterImage}
+                        onClick={handleRetry}
                         size="sm"
                         variant="ghost"
                         className="mt-2 text-violet-300 hover:text-violet-200"
@@ -326,17 +324,19 @@ export default function FortunePage() {
             <div className="flex flex-col sm:flex-row gap-4 w-full items-center justify-center">
               <ShareButton
                 username={username}
-                sign={sign?.name || signName}
+                sign={signName}
                 fortune={fortune}
-                imageUrl={imageUrl}
-                className="w-full"
+                ipfsUrl={ipfsUrl}
+                className="mt-4"
               />
-              <MintButton 
-                username={username} 
-                year={birthYear} 
-                sign={sign?.name || signName} 
+              <MintButton
+                username={username}
+                year={birthYear}
+                sign={signName}
                 fortune={fortune}
                 imageUrl={imageUrl}
+                ipfsHash={ipfsHash}
+                className="mt-4"
               />
             </div>
             <Link href="/" className="w-full">

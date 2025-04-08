@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
         <title>Zoda - Crypto Fortune Teller</title>
         <meta property="og:title" content="Zoda - Crypto Fortune Teller" />
         <meta property="og:description" content="Discover your crypto fortune based on your Chinese zodiac sign" />
-        <meta property="og:image" content="${baseUrl}/api/og" />
+        <meta property="og:image" content="${baseUrl}/images/zoda-preview.png" />
         <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content="${baseUrl}/api/og" />
+        <meta property="fc:frame:image" content="${baseUrl}/images/zoda-preview.png" />
         <meta property="fc:frame:button:1" content="Get My Fortune" />
         <meta property="fc:frame:post_url" content="${baseUrl}/api/frame" />
       </head>

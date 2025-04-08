@@ -70,6 +70,19 @@ export const zodaNftAbi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "mintFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -94,7 +107,52 @@ export const zodaNftAbi = [
     name: "NFTMinted",
     type: "event",
   },
-]
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "ownerOf",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "newFee",
+        type: "uint256",
+      },
+    ],
+    name: "setMintFee",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+] as const
 
 export const nftAbi = [
   {

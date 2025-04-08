@@ -1523,7 +1523,7 @@ const deployedContracts = {
   },
   84532: {
     ZodaNFT: {
-      address: "0x71F6Fcd3326C22a896d1d725be5B9E2060001936",
+      address: "0xf9559D1cD7fD7E3C4d1B7B700670F685C6b7Aca9",
       abi: [
         {
           anonymous: false,
@@ -1782,6 +1782,19 @@ const deployedContracts = {
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "string",
+              name: "newSuffix",
+              type: "string",
+            },
+          ],
+          name: "URISuffixUpdated",
+          type: "event",
+        },
+        {
           inputs: [
             {
               internalType: "address",
@@ -1905,11 +1918,6 @@ const deployedContracts = {
               internalType: "address",
               name: "to",
               type: "address",
-            },
-            {
-              internalType: "string",
-              name: "metadataURI",
-              type: "string",
             },
           ],
           name: "mint",
@@ -2141,6 +2149,19 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "string",
+              name: "newSuffix",
+              type: "string",
+            },
+          ],
+          name: "setURISuffix",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "bytes4",
               name: "interfaceId",
               type: "bytes4",
@@ -2296,7 +2317,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     ZodaNFT_Implementation: {
-      address: "0x11A13c5E75f29CE60638099A694Fa4Bc0720a1ce",
+      address: "0xF2381c9F93c1b852258a7A5cd7A477F6E6A0A2B8",
       abi: [
         {
           inputs: [],
@@ -2542,6 +2563,19 @@ const deployedContracts = {
           anonymous: false,
           inputs: [
             {
+              indexed: false,
+              internalType: "string",
+              name: "newSuffix",
+              type: "string",
+            },
+          ],
+          name: "URISuffixUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
               indexed: true,
               internalType: "address",
               name: "implementation",
@@ -2675,11 +2709,6 @@ const deployedContracts = {
               internalType: "address",
               name: "to",
               type: "address",
-            },
-            {
-              internalType: "string",
-              name: "metadataURI",
-              type: "string",
             },
           ],
           name: "mint",
@@ -2911,6 +2940,19 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "string",
+              name: "newSuffix",
+              type: "string",
+            },
+          ],
+          name: "setURISuffix",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "bytes4",
               name: "interfaceId",
               type: "bytes4",
@@ -3050,7 +3092,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     ZodaNFT_Proxy: {
-      address: "0x71F6Fcd3326C22a896d1d725be5B9E2060001936",
+      address: "0xf9559D1cD7fD7E3C4d1B7B700670F685C6b7Aca9",
       abi: [
         {
           inputs: [

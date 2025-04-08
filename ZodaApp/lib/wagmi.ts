@@ -1,12 +1,22 @@
 import { http, createConfig } from 'wagmi'
-import { base } from 'wagmi/chains'
+import { base, baseSepolia } from 'wagmi/chains'
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector'
 
+// Get chain configuration from environment variables
+const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
+
+// Select the appropriate chain based on the chain ID
+const chain = TARGET_CHAIN_ID === 8453 ? base : baseSepolia
+
+// Create transports object with proper typing for both chains
+const transports = {
+  [base.id]: http(),
+  [baseSepolia.id]: http(),
+} as const
+
 export const config = createConfig({
-  chains: [base],
-  transports: {
-    [base.id]: http(),
-  },
+  chains: [chain],
+  transports,
   connectors: [
     miniAppConnector()
   ]
