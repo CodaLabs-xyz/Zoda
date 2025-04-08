@@ -338,6 +338,7 @@ export default function FortunePage() {
                 sign={signName}
                 fortune={fortune}
                 imageUrl={imageUrl}
+                ipfsUrl={ipfsUrl}
                 ipfsHash={ipfsHash}
                 className="mt-4"
               />
