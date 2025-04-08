@@ -58,6 +58,13 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
     initFarcaster()
   }, [])
 
+  // Function to format IPFS URL for display and metadata
+  const formatDisplayUrl = (hash: string) => {
+    // Remove any protocol prefixes
+    const cleanHash = hash.replace('ipfs://', '').replace('https://ipfs.io/ipfs/', '')
+    return `https://ipfs.io/ipfs/${cleanHash}`
+  }
+
   // Close dialog when minting is successful
   useEffect(() => {
     if (isSuccess) {
@@ -68,39 +75,78 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
   const onMint = async () => {
     try {
       setError("")
+      console.log('Starting mint process with parameters:', {
+        username,
+        sign,
+        year,
+        fortune: fortune.substring(0, 100) + '...',
+        ipfsHash,
+        imageUrl
+      })
 
-      if (!isConnected) return
+      if (!isConnected) {
+        console.log('Wallet not connected, aborting mint')
+        return
+      }
+
       if (!isFarcasterReady) {
+        console.log('Farcaster not ready, aborting mint')
         setError("Please open this app in Farcaster to mint")
         return
       }
-      if (!imageUrl || !ipfsHash) {
+      
+      if (!ipfsHash) {
+        console.log('IPFS hash not available, aborting mint')
         setError("Image not ready yet")
         return
       }
 
       // Check if on correct network
       if (chainId !== TARGET_CHAIN_ID) {
+        console.log('Network mismatch:', {
+          current: chainId,
+          required: TARGET_CHAIN_ID,
+          networkName: NETWORK_NAME
+        })
         if (switchChain) {
+          console.log('Attempting to switch network...')
           await switchChain({ chainId: TARGET_CHAIN_ID })
+          console.log('Network switch successful')
         } else {
+          console.log('Network switch not available')
           setError(`Please switch to ${NETWORK_NAME} network`)
           return
         }
       }
+
+      const formattedImageUrl = formatDisplayUrl(ipfsHash)
+      console.log('Formatted IPFS URL for metadata:', formattedImageUrl)
 
       const metadata = createNFTMetadata({
         username,
         sign,
         year,
         fortune,
-        imageUrl: `ipfs://${ipfsHash}`,
+        imageUrl: formattedImageUrl,
       })
 
+      console.log('Created NFT metadata:', {
+        name: metadata.name,
+        description: metadata.description.substring(0, 100) + '...',
+        image: metadata.image,
+        attributes: metadata.attributes
+      })
+
+      console.log('Initiating mint transaction...')
       await handleMint(metadata)
+      console.log('Mint transaction completed successfully!')
     } catch (err) {
-      console.error(err)
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.")
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again."
+      console.error('Mint process failed:', {
+        error: errorMessage,
+        fullError: err
+      })
+      setError(errorMessage)
     }
   }
 
@@ -129,13 +175,17 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
 
           <div className="space-y-4">
             {/* Image Preview */}
-            {imageUrl && (
-              <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+            {ipfsHash && (
+              <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-violet-900/50">
                 <Image
-                  src={imageUrl}
+                  src={formatDisplayUrl(ipfsHash)}
                   alt={`${sign} Character`}
                   fill
                   className="object-cover"
+                  onError={(e) => {
+                    console.error('Failed to load image:', formatDisplayUrl(ipfsHash))
+                    e.currentTarget.src = imageUrl || '' // Fallback to original URL if IPFS fails
+                  }}
                 />
               </div>
             )}
