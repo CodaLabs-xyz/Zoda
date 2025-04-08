@@ -183,5 +183,6 @@ export function useNFTMint() {
     isSuccess: isMinted && isTransactionConfirmed,
     error: mintError,
     mintPrice: MINT_PRICE,
+    mintHash,
   }
 } 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAccount, useConnect, useChainId, useSwitchChain } from 'wagmi'
+import { useAccount, useConnect, useChainId, useSwitchChain, usePublicClient } from 'wagmi'
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -11,14 +11,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Loader2, Sparkles, Wallet } from "lucide-react"
+import { Loader2, Sparkles, Wallet, Share2 } from "lucide-react"
 import Image from "next/image"
 import { sdk } from "@farcaster/frame-sdk"
 import { useNFTMint, createNFTMetadata } from "@/services/nft"
+import { decodeEventLog } from "viem"
+import { zodaNftAbi } from "@/lib/abis"
+import type { Log } from "viem"
 
 // Get chain configuration from environment variables
 const TARGET_CHAIN_ID = parseInt(process.env.NEXT_PUBLIC_CHAIN_ID || "84532")
 const NETWORK_NAME = TARGET_CHAIN_ID === 8453 ? "Base" : "Base Sepolia"
+
+// Get contract address from environment variable
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ZODA_PROXY_CONTRACT_ADDRESS as `0x${string}`
+if (!CONTRACT_ADDRESS) {
+  throw new Error('NEXT_PUBLIC_ZODA_PROXY_CONTRACT_ADDRESS not set')
+}
 
 interface MintButtonProps {
   username: string
@@ -35,12 +44,14 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
   const [error, setError] = useState("")
   const [isFarcasterReady, setIsFarcasterReady] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [mintedTokenId, setMintedTokenId] = useState<string>()
 
   const { isConnected } = useAccount()
   const { connect, connectors } = useConnect()
   const chainId = useChainId()
   const { switchChain } = useSwitchChain()
-  const { handleMint, isMinting, isSuccess, error: mintError, mintPrice } = useNFTMint()
+  const publicClient = usePublicClient()
+  const { handleMint, isMinting, isSuccess, error: mintError, mintPrice, mintHash } = useNFTMint()
 
   useEffect(() => {
     setMounted(true)
@@ -71,6 +82,42 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
       setOpen(false)
     }
   }, [isSuccess])
+
+  // Add event listener for NFTMinted event
+  useEffect(() => {
+    if (isSuccess && publicClient && mintHash) {
+      const getTokenId = async () => {
+        try {
+          // Get the latest transaction receipt
+          const receipt = await publicClient.getTransactionReceipt({ hash: mintHash })
+          const mintEvent = receipt.logs.find((log: Log) => {
+            try {
+              const event = decodeEventLog({
+                abi: zodaNftAbi,
+                data: log.data,
+                topics: log.topics,
+              })
+              return event.eventName === 'NFTMinted'
+            } catch {
+              return false
+            }
+          })
+
+          if (mintEvent) {
+            const { tokenId } = decodeEventLog({
+              abi: zodaNftAbi,
+              data: mintEvent.data,
+              topics: mintEvent.topics,
+            }).args
+            setMintedTokenId(tokenId.toString())
+          }
+        } catch (error) {
+          console.error('Error getting minted token ID:', error)
+        }
+      }
+      getTokenId()
+    }
+  }, [isSuccess, publicClient, mintHash])
 
   const onMint = async () => {
     try {
@@ -150,19 +197,41 @@ export function MintButton({ username, year, sign, fortune, imageUrl, ipfsHash, 
     }
   }
 
+  // Add handleShareNFT function
+  const handleShareNFT = () => {
+    if (!mintedTokenId) return
+
+    const baseUrl = TARGET_CHAIN_ID === 8453 ? 'basescan.org' : 'base-sepolia.blockscout.com'
+    const text = `🎉 Just minted my Zoda Fortune NFT #${mintedTokenId}! As a ${sign}, "${fortune}" Check it out on https://${baseUrl}/token/${CONTRACT_ADDRESS}/instance/${mintedTokenId}`
+    const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`
+    window.open(url, '_blank')
+  }
+
   // Don't render anything until we've checked Farcaster status
   if (!mounted) return null
 
   return (
     <>
-      <Button 
-        onClick={() => setOpen(true)} 
-        className={`bg-violet-600 hover:bg-violet-700 ${className}`}
-        disabled={!isFarcasterReady || isSuccess}
-      >
-        <Sparkles className="mr-2 h-4 w-4" />
-        {isSuccess ? "NFT Minted!" : isFarcasterReady ? "Mint as NFT" : "Open in Farcaster"}
-      </Button>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button 
+          onClick={() => setOpen(true)} 
+          className={`bg-violet-600 hover:bg-violet-700 ${className}`}
+          disabled={!isFarcasterReady || isSuccess}
+        >
+          <Sparkles className="mr-2 h-4 w-4" />
+          {isSuccess ? "NFT Minted!" : isFarcasterReady ? "Mint as NFT" : "Open in Farcaster"}
+        </Button>
+
+        {isSuccess && mintedTokenId && (
+          <Button 
+            onClick={handleShareNFT} 
+            className="bg-violet-600 hover:bg-violet-700 mt-4"
+          >
+            <Share2 className="mr-2 h-4 w-4" />
+            Share on Warpcast
+          </Button>
+        )}
+      </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-violet-950 border-violet-300/20 text-white max-h-[90vh] overflow-y-auto" title="Mint Your Fortune as NFT">
