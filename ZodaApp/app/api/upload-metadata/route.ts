@@ -13,11 +13,12 @@ interface NFTAttribute {
   value: string
 }
 
-// Validate metadata structure
+// Validate metadata structure following OpenSea standard
 const MetadataSchema = z.object({
   name: z.string().min(1),
   description: z.string(),
-  image: z.string(),
+  image: z.string().startsWith('https://ipfs.io/ipfs/'),
+  external_url: z.string().optional(),
   attributes: z.array(z.object({
     trait_type: z.string(),
     value: z.string()
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
 
     const validMetadata = validationResult.data
 
-    console.log('Uploading metadata to IPFS *:', validMetadata)
+    console.log('Uploading metadata to IPFS:', validMetadata)
 
     // Get zodiac sign and year from attributes
     const zodiacSign = validMetadata.attributes.find((attr: NFTAttribute) => attr.trait_type === 'Zodiac Sign')?.value || ''

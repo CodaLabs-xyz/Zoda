@@ -23,6 +23,7 @@
   "dependencies": {
     "@inquirer/password": "^4.0.2",
     "@typechain/ethers-v6": "~0.5.1",
+    "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "envfile": "~7.1.0",
     "qrcode": "~1.5.4"

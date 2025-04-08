@@ -1523,7 +1523,7 @@ const deployedContracts = {
   },
   84532: {
     ZodaNFT: {
-      address: "0xf9559D1cD7fD7E3C4d1B7B700670F685C6b7Aca9",
+      address: "0xCcb680C4AD7f7b5f81426c40dCB99790aDA63926",
       abi: [
         {
           anonymous: false,
@@ -1626,19 +1626,6 @@ const deployedContracts = {
             },
           ],
           name: "ApprovalForAll",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: false,
-              internalType: "string",
-              name: "newBaseURI",
-              type: "string",
-            },
-          ],
-          name: "BaseURIUpdated",
           type: "event",
         },
         {
@@ -1782,19 +1769,6 @@ const deployedContracts = {
           type: "event",
         },
         {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: false,
-              internalType: "string",
-              name: "newSuffix",
-              type: "string",
-            },
-          ],
-          name: "URISuffixUpdated",
-          type: "event",
-        },
-        {
           inputs: [
             {
               internalType: "address",
@@ -1863,11 +1837,6 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "string",
-              name: "baseURI",
-              type: "string",
-            },
-            {
               internalType: "uint256",
               name: "initialMintFee",
               type: "uint256",
@@ -1919,6 +1888,11 @@ const deployedContracts = {
               name: "to",
               type: "address",
             },
+            {
+              internalType: "string",
+              name: "metadataURI",
+              type: "string",
+            },
           ],
           name: "mint",
           outputs: [
@@ -1952,6 +1926,19 @@ const deployedContracts = {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "nextTokenId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -2110,19 +2097,6 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "string",
-              name: "newBaseURI",
-              type: "string",
-            },
-          ],
-          name: "setBaseURI",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "uint256",
               name: "newFee",
               type: "uint256",
@@ -2142,19 +2116,6 @@ const deployedContracts = {
             },
           ],
           name: "setTreasuryAddress",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "newSuffix",
-              type: "string",
-            },
-          ],
-          name: "setURISuffix",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -2317,7 +2278,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     ZodaNFT_Implementation: {
-      address: "0xF2381c9F93c1b852258a7A5cd7A477F6E6A0A2B8",
+      address: "0x869892be8E583dD695498940E2aA5621666C9C7D",
       abi: [
         {
           inputs: [],
@@ -2391,19 +2352,6 @@ const deployedContracts = {
             },
           ],
           name: "ApprovalForAll",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: false,
-              internalType: "string",
-              name: "newBaseURI",
-              type: "string",
-            },
-          ],
-          name: "BaseURIUpdated",
           type: "event",
         },
         {
@@ -2563,19 +2511,6 @@ const deployedContracts = {
           anonymous: false,
           inputs: [
             {
-              indexed: false,
-              internalType: "string",
-              name: "newSuffix",
-              type: "string",
-            },
-          ],
-          name: "URISuffixUpdated",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
               indexed: true,
               internalType: "address",
               name: "implementation",
@@ -2654,11 +2589,6 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "string",
-              name: "baseURI",
-              type: "string",
-            },
-            {
               internalType: "uint256",
               name: "initialMintFee",
               type: "uint256",
@@ -2710,6 +2640,11 @@ const deployedContracts = {
               name: "to",
               type: "address",
             },
+            {
+              internalType: "string",
+              name: "metadataURI",
+              type: "string",
+            },
           ],
           name: "mint",
           outputs: [
@@ -2743,6 +2678,19 @@ const deployedContracts = {
               internalType: "string",
               name: "",
               type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "nextTokenId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -2901,19 +2849,6 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "string",
-              name: "newBaseURI",
-              type: "string",
-            },
-          ],
-          name: "setBaseURI",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "uint256",
               name: "newFee",
               type: "uint256",
@@ -2933,19 +2868,6 @@ const deployedContracts = {
             },
           ],
           name: "setTreasuryAddress",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "newSuffix",
-              type: "string",
-            },
-          ],
-          name: "setURISuffix",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -3092,7 +3014,7 @@ const deployedContracts = {
       inheritedFunctions: {},
     },
     ZodaNFT_Proxy: {
-      address: "0xf9559D1cD7fD7E3C4d1B7B700670F685C6b7Aca9",
+      address: "0xCcb680C4AD7f7b5f81426c40dCB99790aDA63926",
       abi: [
         {
           inputs: [
