@@ -37,7 +37,7 @@ export function createNFTMetadata({
   fortune: string
   imageUrl: string
 }): NFTMetadata {
-  // Convert ipfs:// URLs to https gateway URLs
+  // Convert ipfs:// URLs to https gateway URLs for preview
   const formattedImageUrl = imageUrl.startsWith('ipfs://')
     ? `https://ipfs.io/ipfs/${imageUrl.replace('ipfs://', '')}`
     : imageUrl.startsWith('https://ipfs.io/ipfs/')
@@ -47,7 +47,7 @@ export function createNFTMetadata({
   const metadata = {
     name: `${username}'s ${sign} Fortune`,
     description: fortune,
-    image: formattedImageUrl,
+    image: imageUrl, // Keep original ipfs:// URL for metadata
     attributes: [
       {
         trait_type: 'Zodiac Sign',
@@ -96,53 +96,11 @@ export function useNFTMint() {
     hash: mintHash,
   })
 
-  const uploadMetadataToIPFS = async (metadata: NFTMetadata): Promise<string> => {
-    console.log('Uploading metadata to IPFS with full details:', {
-      name: metadata.name,
-      description: metadata.description.substring(0, 100) + '...',
-      image: metadata.image,
-      attributes: metadata.attributes
-    })
-
-    const response = await fetch('/api/upload-metadata', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(metadata),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      console.error('Failed to upload metadata:', error)
-      throw new Error(error.error || 'Failed to upload metadata to IPFS')
-    }
-
-    const { metadataUrl } = await response.json()
-    console.log('Metadata uploaded successfully:', { 
-      metadataUrl,
-      originalImage: metadata.image
-    })
-
-    if (!metadataUrl || !metadataUrl.startsWith('ipfs://')) {
-      console.error('Invalid metadata URL:', { metadataUrl })
-      throw new Error('Invalid metadata URL returned from IPFS')
-    }
-
-    return metadataUrl
-  }
-
   const handleMint = async (metadata: NFTMetadata) => {
     try {
       if (!address) throw new Error('Wallet not connected')
       if (!publicClient) throw new Error('Public client not initialized')
       if (chainId !== TARGET_CHAIN_ID) throw new Error('Wrong network')
-
-      // Ensure image URL is in IPFS format
-      // if (!metadata.image.startsWith('ipfs://')) {
-      //   console.error('Invalid image URL format:', { imageUrl: metadata.image })
-      //   throw new Error('Image URL must be in IPFS format')
-      // }
 
       console.log('Starting NFT mint process with metadata:', {
         name: metadata.name,
@@ -151,14 +109,10 @@ export function useNFTMint() {
         attributes: metadata.attributes
       })
 
-      const metadataUrl = await uploadMetadataToIPFS(metadata)
-      console.log('Metadata URL for minting:', metadataUrl)
-
-      // Mint NFT with metadata URL and mint price from env
+      // Mint NFT with just the address and mint price
       console.log('Minting NFT with params:', {
         contract: CONTRACT_ADDRESS,
         to: address,
-        metadataUrl,
         value: MINT_PRICE
       })
 
@@ -166,7 +120,7 @@ export function useNFTMint() {
         address: CONTRACT_ADDRESS,
         abi: zodaNftAbi,
         functionName: 'mint',
-        args: [address as Address, metadataUrl],
+        args: [address as Address],
         value: parseEther(MINT_PRICE),
       })
 

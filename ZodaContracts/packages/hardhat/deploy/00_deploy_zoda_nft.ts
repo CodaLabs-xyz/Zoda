@@ -23,7 +23,6 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const config = {
     name: "Zoda NFT",
     symbol: "ZODA",
-    baseURI: "https://api.zoda.app/nft/",
     // 0.0005 ETH in wei
     mintFee: ethers.parseEther("0.0005"),
   };
@@ -31,7 +30,6 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
   console.log("\n📝 Deployment Configuration:");
   console.log("- Name:", config.name);
   console.log("- Symbol:", config.symbol);
-  console.log("- Base URI:", config.baseURI);
   console.log("- Mint Fee:", ethers.formatEther(config.mintFee), "ETH");
 
   // Deploy implementation
@@ -46,7 +44,6 @@ const deployZodaNFT: DeployFunction = async function (hre: HardhatRuntimeEnviron
           args: [
             config.name,
             config.symbol,
-            config.baseURI,
             config.mintFee,
             ownerAddress, // Contract owner
             treasuryAddress, // Treasury address for fee collection

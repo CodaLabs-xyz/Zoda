@@ -26,12 +26,6 @@ contract ZodaNFT is
     // Token ID counter
     uint256 private _nextTokenId;
 
-    // Base URI for metadata
-    string private _baseTokenURI;
-
-    // Token URI suffix (e.g. ".json")
-    string private _uriSuffix;
-
     // Minting fee in ETH
     uint256 public mintFee;
 
@@ -41,8 +35,6 @@ contract ZodaNFT is
     // Events
     event NFTMinted(address indexed to, uint256 indexed tokenId, string uri);
     event MintFeeUpdated(uint256 newFee);
-    event BaseURIUpdated(string newBaseURI);
-    event URISuffixUpdated(string newSuffix);
     event TreasuryAddressUpdated(address newTreasury);
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -53,7 +45,6 @@ contract ZodaNFT is
     function initialize(
         string memory name,
         string memory symbol,
-        string memory baseURI,
         uint256 initialMintFee,
         address initialOwner,
         address payable initialTreasury
@@ -64,8 +55,6 @@ contract ZodaNFT is
         __Ownable_init();
         __UUPSUpgradeable_init();
 
-        _baseTokenURI = baseURI;
-        _uriSuffix = ".json";
         mintFee = initialMintFee;
         _nextTokenId = 1;
         treasuryAddress = initialTreasury;
@@ -75,18 +64,20 @@ contract ZodaNFT is
         transferOwnership(initialOwner);
     }
 
-    function mint(address to) public payable returns (uint256) {
+    function mint(address to, string memory metadataURI) public payable returns (uint256) {
         require(msg.value >= mintFee, "Insufficient payment");
+        require(bytes(metadataURI).length > 0, "Metadata URI cannot be empty");
 
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
+        _setTokenURI(tokenId, metadataURI);
 
         // Auto-withdraw fees to treasury if balance exceeds 0.01 ETH
         if (address(this).balance >= 0.01 ether) {
             _withdrawFeesToTreasury();
         }
 
-        emit NFTMinted(to, tokenId, tokenURI(tokenId));
+        emit NFTMinted(to, tokenId, metadataURI);
 
         return tokenId;
     }
@@ -97,20 +88,15 @@ contract ZodaNFT is
         emit MintFeeUpdated(newFee);
     }
 
-    function setBaseURI(string memory newBaseURI) external onlyOwner {
-        _baseTokenURI = newBaseURI;
-        emit BaseURIUpdated(newBaseURI);
-    }
-
-    function setURISuffix(string memory newSuffix) external onlyOwner {
-        _uriSuffix = newSuffix;
-        emit URISuffixUpdated(newSuffix);
-    }
-
     function setTreasuryAddress(address payable newTreasury) external onlyOwner {
         require(newTreasury != address(0), "Invalid treasury address");
         treasuryAddress = newTreasury;
         emit TreasuryAddressUpdated(newTreasury);
+    }
+
+    // View functions
+    function nextTokenId() public view returns (uint256) {
+        return _nextTokenId;
     }
 
     function withdrawFees() external {
@@ -128,20 +114,12 @@ contract ZodaNFT is
     }
 
     // Required overrides
-    function _baseURI() internal view override returns (string memory) {
-        return _baseTokenURI;
-    }
-
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     // The following functions are overrides required by Solidity
     function tokenURI(uint256 tokenId) public view override(ERC721Upgradeable, ERC721URIStorageUpgradeable) returns (string memory) {
         require(_exists(tokenId), "URI query for nonexistent token");
-        
-        string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 
-            ? string(abi.encodePacked(baseURI, tokenId.toString(), _uriSuffix))
-            : "";
+        return super.tokenURI(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
