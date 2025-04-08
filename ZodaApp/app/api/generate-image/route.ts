@@ -1,47 +1,30 @@
 // app/api/generate-image/route.ts
 import { NextResponse } from 'next/server'
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Set in .env.local
+})
 
 export async function POST(req: Request) {
+  if (req.method !== 'POST') {
+    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
+  }
+
   try {
     const { prompt } = await req.json()
 
-    if (!process.env.OPENAI_API_KEY) {
-      console.error("OPENAI_API_KEY is not configured")
-      return NextResponse.json({ error: "OpenAI API key is not configured" }, { status: 500 })
-    }
-
-    console.log("Generating image with prompt:", prompt)
-
-    const response = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        prompt,
-        n: 1,
-        size: '512x512',
-      }),
+    const response = await openai.images.generate({
+      model: 'dall-e-3', // or 'dall-e-2'
+      prompt,
+      n: 1,
+      size: "1024x1024", // 👈 Smaller image size
     })
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.error("OpenAI API error:", errorData)
-      return NextResponse.json({ error: "Failed to generate image" }, { status: response.status })
-    }
-
-    const data = await response.json()
-
-    if (!data.data?.[0]?.url) {
-      console.error("Invalid response from OpenAI:", data)
-      return NextResponse.json({ error: "Invalid response from image generation API" }, { status: 500 })
-    }
-
-    console.log("Successfully generated image")
-    return NextResponse.json({ imageUrl: data.data[0].url })
+    const imageUrl = response.data[0].url
+    return NextResponse.json({ imageUrl })
   } catch (error) {
-    console.error("Error generating image:", error)
-    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 })
+    console.error('Error generating image:', error)
+    return NextResponse.json({ error: 'Image generation failed' }, { status: 500 })
   }
 }
