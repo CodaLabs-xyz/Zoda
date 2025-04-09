@@ -156,11 +156,31 @@ export default function FortunePage() {
         setImageUrl(imageData.imageUrl)
         generationInProgress.current.imageUrl = imageData.imageUrl
 
+        // Resize the image before uploading to IPFS
+        console.log('Resizing image to 512x512...')
+        const resizeResponse = await fetch("/api/fetch-and-resize-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageUrl: imageData.imageUrl }),
+        })
+        
+        if (!resizeResponse.ok) {
+          throw new Error('Failed to resize image')
+        }
+
+        // Convert the resized image to base64
+        const resizedImageBlob = await resizeResponse.blob()
+        const base64Image = await new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result)
+          reader.readAsDataURL(resizedImageBlob)
+        })
+
         // Step 3: Upload to IPFS
         setStatus('uploading_ipfs')
-        console.log('Starting IPFS upload for image:', imageData.imageUrl.substring(0, 50) + '...')
+        console.log('Starting IPFS upload for resized image')
         
-        const ipfsResult = await uploadToIpfs(imageData.imageUrl)
+        const ipfsResult = await uploadToIpfs(base64Image as string)
         console.log('Setting IPFS data:', ipfsResult)
         setIpfsUrl(ipfsResult.url)
         setIpfsHash(ipfsResult.ipfsHash)
