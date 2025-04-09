@@ -33,14 +33,21 @@ export async function POST(req: Request) {
       )
     }
 
-    // Fetch the image from the URL
-    const response = await fetch(imageUrl)
-    if (!response.ok) {
-      throw new Error('Failed to fetch image')
+    let buffer: Buffer
+
+    // Handle base64 data URLs
+    if (imageUrl.startsWith('data:')) {
+      const base64Data = imageUrl.split(',')[1]
+      buffer = Buffer.from(base64Data, 'base64')
+    } else {
+      // Handle regular URLs
+      const response = await fetch(imageUrl)
+      if (!response.ok) {
+        throw new Error('Failed to fetch image')
+      }
+      const arrayBuffer = await response.arrayBuffer()
+      buffer = Buffer.from(arrayBuffer)
     }
-    
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
     
     // Create a readable stream from the buffer
     const stream = bufferToStream(buffer)
