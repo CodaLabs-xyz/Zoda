@@ -156,6 +156,10 @@ export default function FortunePage() {
         setImageUrl(imageData.imageUrl)
         generationInProgress.current.imageUrl = imageData.imageUrl
 
+        // console.log('Image URL:', imageData.imageUrl)
+
+        // we need to resize the ipfsimage from 1024x1024 to 512x512
+
         // Step 3: Upload to IPFS
         setStatus('uploading_ipfs')
         console.log('Starting IPFS upload for image:', imageData.imageUrl.substring(0, 50) + '...')
@@ -165,6 +169,8 @@ export default function FortunePage() {
         setIpfsUrl(ipfsResult.url)
         setIpfsHash(ipfsResult.ipfsHash)
         generationInProgress.current.ipfsHash = ipfsResult.ipfsHash
+
+
 
         // Complete
         setStatus('completed')
